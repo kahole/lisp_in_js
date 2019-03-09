@@ -77,8 +77,6 @@ function parse(lexemes) {
     return ast.reverse();
 }
 
-
-
 function lookup(env, store, key) {
     if (env.hasOwnProperty(key)) {
         return env[key];
@@ -154,15 +152,17 @@ const program = `
 
 (eval '(+ 111 111))
 
-(set 'my_lambda (lambda '(x y) '(/ y x)))
+(set 'reverse_div (lambda '(x y) '(/ y x)))
 
-(my_lambda 2 10)
+(reverse_div 2 10)
 
 (call (lambda '(x y) '(* y x)) 2 44)
 
 (if (not (eq (+ (/ 10 2) 20) 45)) x 'eple)
 
 (let 'k 3 '(+ k 6))
+
+(let 'k 3 '(let 'm 7 '(+ k m)))
 `;
 
 console.log(run(program, builtins));
