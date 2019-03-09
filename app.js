@@ -4,21 +4,21 @@ const { match } = require('egna');
 function tokenize(input) {
 
     input = input.replace(/(\r\n|\n|\r)/gm, " ");
-    console.log(input)
+    // console.log(input)
 
     const lexemes = [];
 
     let builder = "";
     const pop_builder = () => { let b = builder; builder = ""; return b};
-    let rquoting = false;
+    let quoting = false;
     let quote_level = 0;
     let quoting_parenths = false;
     
     for (var i = 0; i < input.length; i++) {
-        if (rquoting) {
+        if (quoting) {
             const c = input.charAt(i);
             if (c === ' ' && !quoting_parenths) {
-                rquoting = false;
+                quoting = false;
             } else if (c == '(') {
                 quote_level++;
             } else if (c == ')') {
@@ -26,14 +26,14 @@ function tokenize(input) {
                     quote_level--;
                     if (quote_level === 0) {
                         builder += c;
-                        rquoting = false;
+                        quoting = false;
                         continue;
                     }
                 } else {
-                    rquoting = false;
+                    quoting = false;
                 }
             }
-            if (rquoting) {
+            if (quoting) {
                 builder += c;
                 continue;
             }
@@ -42,7 +42,7 @@ function tokenize(input) {
             '(', c => lexemes.push(c),
             ' ', c => builder.length === 0 ? null : lexemes.push(pop_builder()),
             ')', c => [lexemes.push(pop_builder()), lexemes.push(c)],
-            "'", c => {rquoting = true; quoting_parenths=(input.charAt(i+1) === '('); builder += c},
+            "'", c => {quoting = true; quoting_parenths=(input.charAt(i+1) === '('); builder += c},
             c => {builder += c}
         )
         (input.charAt(i));
@@ -128,7 +128,6 @@ const builtins = {
         env = {...env, [label]: args[1]};
         return run(args[2].replace("'", ""), env)[0];
     },
-    //eval: enklere fun quote forlopig.. og returnerer first return value
     "eval": (args, env) => run(args[0].replace("'", ""), env)[0], 
     "lambda": (args, env) => {
         const params = args[0].replace("'", "").replace(/(\(|\))/gm, "").split(" ");
@@ -165,8 +164,5 @@ const program = `
 
 (let 'k 3 '(+ k 6))
 `;
-// const program = "(if (not (eq (+ (/ 10 2) 20) 45)) banan eple) (+ 333 333)";
-
-// const program = "(if (eq (+ (+ 1 2) 22) 25) 'banan' 'eple')";
 
 console.log(run(program, builtins));
