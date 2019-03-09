@@ -88,7 +88,7 @@ function lookup(env, store, key) {
 }
 
 function interpret_exp(ast, env) {
-
+    // console.log(ast);
     if (Array.isArray(ast)) {
         const operator = ast.pop();
         return lookup(env, store, operator)(ast.reverse().map(a => interpret_exp(a, env)), env);
@@ -117,7 +117,7 @@ const builtins = {
     "-": (args) => args[0] - args[1],
     "*": (args) => args[0] * args[1],
     "/": (args) => args[0] / args[1],
-    "eq": (args) => args[0] === args[1],
+    "eq?": (args) => args[0] === args[1],
     "if": (args) => args[0] ? args[1] : args[2],
     "not": (args) => !args[0],
     "set": (args) => {store[args[0].replace("'", "")] = args[1]; return null;},
@@ -126,7 +126,7 @@ const builtins = {
         env = {...env, [label]: args[1]};
         return run(args[2].replace("'", ""), env)[0];
     },
-    "eval": (args, env) => run(args[0].replace("'", ""), env)[0], 
+    "eval": (args, env) => run(args[0].replace("'", ""), env)[0],
     "lambda": (args, env) => {
         const params = args[0].replace("'", "").replace(/(\(|\))/gm, "").split(" ");
         const ast = parse(tokenize(args[1].replace("'", "")));
@@ -158,11 +158,28 @@ const program = `
 
 (call (lambda '(x y) '(* y x)) 2 44)
 
-(if (not (eq (+ (/ 10 2) 20) 45)) x 'eple)
+(if (not (eq? (+ (/ 10 2) 20) 45)) x 'eple)
 
 (let 'k 3 '(+ k 6))
 
 (let 'k 3 '(let 'm 7 '(+ k m)))
+
+(set 'pot (lambda '(x) '(+ x 5)))
+(pot 6)
+(pot 6)
 `;
 
 console.log(run(program, builtins));
+
+// REPL
+
+// var readline = require('readline');
+// var rl = readline.createInterface(process.stdin, process.stdout);
+// rl.setPrompt('h> ');
+// rl.prompt();
+// rl.on('line', function(line) {
+//     console.log(run(line, builtins)[0]);
+//     rl.prompt();
+// }).on('close',function(){
+//     process.exit(0);
+// });
