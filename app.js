@@ -10,34 +10,24 @@ function tokenize(input) {
 
     let builder = "";
     const pop_builder = () => { let b = builder; builder = ""; return b};
-    let quoting = false;
     let rquoting = false;
     let quote_level = 0;
     let quoting_parenths = false;
     
     for (var i = 0; i < input.length; i++) {
-        if (quoting) {
-            const c = input.charAt(i);
-            builder += c;
-            if (c === '$') {
-                quoting = false;
-            }
-            continue;
-        }
         if (rquoting) {
             const c = input.charAt(i);
-            if (c === ' ') {
+            if (c === ' ' && !quoting_parenths) {
                 rquoting = false;
             } else if (c == '(') {
                 quote_level++;
             } else if (c == ')') {
                 if (quoting_parenths) {
+                    quote_level--;
                     if (quote_level === 0) {
                         builder += c;
                         rquoting = false;
                         continue;
-                    } else {
-                        quote_level--;
                     }
                 } else {
                     rquoting = false;
@@ -52,7 +42,6 @@ function tokenize(input) {
             '(', c => lexemes.push(c),
             ' ', c => builder.length === 0 ? null : lexemes.push(pop_builder()),
             ')', c => [lexemes.push(pop_builder()), lexemes.push(c)],
-            '$', c => {quoting = true; builder += c},
             "'", c => {rquoting = true; quoting_parenths=(input.charAt(i+1) === '('); builder += c},
             c => {builder += c}
         )
@@ -107,7 +96,7 @@ function interpret_exp(ast, env) {
         return lookup(env, store, operator)(ast.reverse().map(a => interpret_exp(a, env)), env);
     } else {
         if (typeof ast === "string") {
-            if (ast.includes("'") || ast.includes("$")) {
+            if (ast.includes("'")) {
                 return ast;
             } else {
                 return lookup(env, store, ast);
@@ -135,15 +124,15 @@ const builtins = {
     "not": (args) => !args[0],
     "set": (args) => {store[args[0].replace("'", "")] = args[1]; return null;},
     "let": (args, env) => {
-        const label = args[0].replace(/(\$)/gm, "");
+        const label = args[0].replace("'", "");
         env = {...env, [label]: args[1]};
-        return run(args[2].replace(/(\$)/gm, ""), env)[0];
+        return run(args[2].replace("'", ""), env)[0];
     },
     //eval: enklere fun quote forlopig.. og returnerer first return value
-    "eval": (args, env) => run(args[0].replace(/(\$)/gm, ""), env)[0], 
+    "eval": (args, env) => run(args[0].replace("'", ""), env)[0], 
     "lambda": (args, env) => {
-        const params = args[0].replace(/(\$)/gm, "").replace(/(\(|\))/gm, "").split(" ");
-        const ast = parse(tokenize(args[1].replace(/(\$)/gm, "")));
+        const params = args[0].replace("'", "").replace(/(\(|\))/gm, "").split(" ");
+        const ast = parse(tokenize(args[1].replace("'", "")));
         return (lam_args) => {
             // bind args in env
             for (let i = 0; i < params.length; ++i) {
@@ -162,19 +151,19 @@ const store = {};
 //------------------------------------------------------------
 const program = `
 (set 'x 'bananpose)
-(set 'x $hallo banan$)
+(set 'x 'hallo)
 
-(eval $(+ 111 111)$)
+(eval '(+ 111 111))
 
-(set 'my_lambda (lambda $(x y)$ $(/ y x)$))
+(set 'my_lambda (lambda '(x y) '(/ y x)))
 
 (my_lambda 2 10)
 
-(call (lambda $x y$ $(* y x)$) 2 44)
+(call (lambda '(x y) '(* y x)) 2 44)
 
 (if (not (eq (+ (/ 10 2) 20) 45)) x 'eple)
 
-(let $k$ 3 $(+ k 6)$)
+(let 'k 3 '(+ k 6))
 `;
 // const program = "(if (not (eq (+ (/ 10 2) 20) 45)) banan eple) (+ 333 333)";
 
