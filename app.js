@@ -125,7 +125,7 @@ const builtins = {
     "set": (args) => {store[args[0].replace("'", "")] = args[1]; return null;},
     "let": (args, env) => {
         const [key, value] = args[0];
-        env = {...env, [key]: value};
+        env = {...env, [key]: interpret_exp(value, env)};
         return interpret_exp(args[1], env);
     },
     "eval": (args, env) => interpret_exp(parse(tokenize(args[0].replace("'", "")))[0], env),
