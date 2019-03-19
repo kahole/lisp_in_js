@@ -47,7 +47,7 @@ function tokenize(input) {
         )
         (input.charAt(i));
     }
-    return lexemes.reverse();
+    return lexemes;
 }
 
 function parse_symbol(s) {
@@ -72,9 +72,9 @@ function parse(lexemes) {
             ')', l => {popout = true},
             l => ast.push(parse_symbol(l))
         )
-        (lexemes.pop());
+        (lexemes.shift());
     }
-    return ast.reverse();
+    return ast;
 }
 
 function lookup(env, store, key) {
@@ -88,10 +88,9 @@ function lookup(env, store, key) {
 }
 
 function interpret_exp(ast, env) {
-    // console.log(ast);
     if (Array.isArray(ast)) {
-        const operator = ast.pop();
-        return lookup(env, store, operator)(ast.reverse().map(a => interpret_exp(a, env)), env);
+        const operator = ast[0];
+        return lookup(env, store, operator)(ast.slice(1).map(a => interpret_exp(a, env)), env);
     } else {
         if (typeof ast === "string") {
             if (ast.includes("'")) {
@@ -106,7 +105,7 @@ function interpret_exp(ast, env) {
 }
 
 function interpret(ast, env) {
-    return ast.reverse().map(exp => interpret_exp(exp, env));
+    return ast.map(exp => interpret_exp(exp, env));
 }
 
 const run = (src, env) => interpret(parse(tokenize(src)), env);
@@ -129,13 +128,13 @@ const builtins = {
     "eval": (args, env) => run(args[0].replace("'", ""), env)[0],
     "lambda": (args, env) => {
         const params = args[0].replace("'", "").replace(/(\(|\))/gm, "").split(" ");
-        const ast = parse(tokenize(args[1].replace("'", "")));
+        const ast = parse(tokenize(args[1].replace("'", "")))[0];
         return (lam_args) => {
             // bind args in env
             for (let i = 0; i < params.length; ++i) {
                 env = {...env, [params[i]]: lam_args[i]};
             }
-            return interpret_exp(ast[0], env);
+            return interpret_exp(ast, env);
         }
     },
     "call": (args) => args[0](args.splice(1)),
@@ -144,8 +143,23 @@ const builtins = {
 const store = {};
 
 
+function REPL() {
+    var readline = require('readline');
+    var rl = readline.createInterface(process.stdin, process.stdout);
+    rl.setPrompt('h> ');
+    rl.prompt();
+    rl.on('line', function(line) {
+        console.log(run(line, builtins)[0]);
+        rl.prompt();
+    }).on('close',function(){
+        process.exit(0);
+    });
+}
+
 
 //------------------------------------------------------------
+// TESTS:
+
 const program = `
 (set 'x 'bananpose)
 (set 'x 'hallo)
@@ -164,22 +178,28 @@ const program = `
 
 (let 'k 3 '(let 'm 7 '(+ k m)))
 
-(set 'pot (lambda '(x) '(+ x 5)))
+(set 'pot (lambda '(x) '(* x x)))
 (pot 6)
-(pot 6)
+(pot 666)
 `;
 
-console.log(run(program, builtins));
+const results = run(program, builtins);
+const expected = [null, null, 222, null, 5, 88, "'hallo", 9, 10, null, 36, 443556];
+let passed = true;
+let fails = [];
+for (let i = 0; i < expected.length; ++i) {
+    if (expected[i] !== results[i]) {
+        passed = false;
+        fails.push(i);
+    }
+}
 
-// REPL
+if (passed) {
+    console.log("All tests passed!");
+} else {
+    fails.forEach( f => console.log("Failed test #" + f));
+}
 
-// var readline = require('readline');
-// var rl = readline.createInterface(process.stdin, process.stdout);
-// rl.setPrompt('h> ');
-// rl.prompt();
-// rl.on('line', function(line) {
-//     console.log(run(line, builtins)[0]);
-//     rl.prompt();
-// }).on('close',function(){
-//     process.exit(0);
-// });
+//------------------------------------------------------------
+
+REPL();
