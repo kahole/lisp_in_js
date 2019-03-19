@@ -112,6 +112,8 @@ function interpret(ast, env) {
     return ast.map(exp => interpret_exp(exp, env));
 }
 
+const store = {};
+
 const builtins = {
     "+": (args) => args[0] + args[1],
     "-": (args) => args[0] - args[1],
@@ -139,70 +141,30 @@ const builtins = {
     "call": (args) => args[0](args.splice(1)),
 };
 
-const store = {};
-
-
 function REPL() {
     var readline = require('readline');
     var rl = readline.createInterface(process.stdin, process.stdout);
     rl.setPrompt('h> ');
     rl.prompt();
     rl.on('line', (line) => {
-        if (line.length > 0)
-            console.log(interpret(parse(tokenize(line)), builtins)[0]);
+        if (line.length > 0) {
+            try {
+                console.log(interpret(parse(tokenize(line)), builtins)[0]);
+            } catch(e) {
+                console.log(e.message);
+            }
+        }
         rl.prompt();
     }).on('close', () => {
         process.exit(0);
     });
 }
 
-
-//------------------------------------------------------------
-// TESTS:
-
-const program = `
-(set 'x 71)
-(set 'x 'hallo)
-
-(eval '(+ 111 111))
-
-(set 'reverse_div (lambda (x y) (/ y x)))
-
-(reverse_div 2 10)
-
-(call (lambda (x y) (* y x)) 2 44)
-
-(if (not (eq? (+ (/ 10 2) 20) 45)) x 'eple)
-(if (eq? (+ (/ 10 2) 20) 45) x 'eple)
-
-(let (k 3) (+ k 6))
-
-(let (k 3) (let (m 7) (+ k m)))
-
-(set 'pot (lambda (x) (* x x)))
-(pot 6)
-(pot 666)
-
-(eval '(eq? '111 '111))
-`;
-
-const results = interpret(parse(tokenize(program)), builtins);
-const expected = [null, null, 222, null, 5, 88, "'hallo", "'eple", 9, 10, null, 36, 443556, true];
-let passed = true;
-let fails = [];
-for (let i = 0; i < expected.length; ++i) {
-    if (expected[i] !== results[i]) {
-        passed = false;
-        fails.push(i);
-    }
+if (require.main === module) {
+    REPL();
 }
 
-if (passed) {
-    console.log("All tests passed!");
-} else {
-    fails.forEach( f => console.log("Failed test #" + f));
-}
-
-//------------------------------------------------------------
-
-// REPL();
+module.exports = {
+    run: (src) => interpret(parse(tokenize(src)), builtins),
+    REPL: REPL
+};
