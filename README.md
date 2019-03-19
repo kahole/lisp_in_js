@@ -6,7 +6,7 @@ Lisp interpreter in Javascript
 All the code resides within app.js
 Running app.js gives you a lisp prompt:
 
-```
+```lisp
 $ node app
 
 h> (+ 2 3)
@@ -30,7 +30,7 @@ h>
 
 app.js also exports a `run` function for executing programs:
 
-```
+```javascript
 const {run} = require("./app.js");
 
 const program = `
