@@ -1,8 +1,6 @@
 Lisp interpreter in Javascript
 ---
 
-### Run
-
 All the code resides within app.js
 
 Running app.js gives you a lisp prompt:
