@@ -1,7 +1,7 @@
 Lisp interpreter in Javascript
 ---
 
-All the code resides within app.js
+All the code resides in app.js
 
 Running app.js gives you a lisp prompt:
 
