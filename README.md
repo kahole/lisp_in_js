@@ -1,4 +1,4 @@
-lisp interpreter in javascript
+Lisp interpreter in Javascript
 ---
 
 ### Run
