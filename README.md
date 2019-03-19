@@ -61,3 +61,9 @@ const program = `
 
 console.log(run(program));
 ```
+
+## todo
+
+- lists: `cons` `car` `cdr` `list`
+- structs / association lists: `(list (cons 'ditt 'datt) (cons 'osv 'etc))`
+- http and json-parsing: `(json-parse (req url)) -> assoc-list`
