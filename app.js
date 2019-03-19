@@ -1,4 +1,4 @@
-const { match } = require('egna');
+const { match, op } = require('egna');
 
 function tokenize(input) {
 
@@ -89,13 +89,12 @@ function interpret_exp(ast, env) {
     if (Array.isArray(ast)) {
         const operator = ast[0];
         // Special cases for operators that shouldn't have their arguments intepreted immediately
-        switch(operator) {
-        case "if":
-            return lookup(env, store, operator)([interpret_exp(ast[1], env), ...ast.slice(2)], env);
-            break;
-        default:
-            return lookup(env, store, operator)(ast.slice(1).map(a => interpret_exp(a, env)), env);
-        }
+        return match(
+            "if", _ => lookup(env, store, operator)([interpret_exp(ast[1], env), ...ast.slice(2)], env),
+            op(["let", "lambda"]), _ => lookup(env, store, operator)(ast.slice(1), env),
+            _ => lookup(env, store, operator)(ast.slice(1).map(a => interpret_exp(a, env)), env)
+        )(operator);
+
     } else {
         if (typeof ast === "string") {
             if (ast.includes("'")) {
@@ -113,8 +112,6 @@ function interpret(ast, env) {
     return ast.map(exp => interpret_exp(exp, env));
 }
 
-const run = (src, env) => interpret(parse(tokenize(src)), env);
-
 const builtins = {
     "+": (args) => args[0] + args[1],
     "-": (args) => args[0] - args[1],
@@ -125,20 +122,18 @@ const builtins = {
     "not": (args) => !args[0],
     "set": (args) => {store[args[0].replace("'", "")] = args[1]; return null;},
     "let": (args, env) => {
-        const label = args[0].replace("'", "");
-        env = {...env, [label]: args[1]};
-        return run(args[2].replace("'", ""), env)[0];
+        const [key, value] = args[0];
+        env = {...env, [key]: value};
+        return interpret_exp(args[1], env);
     },
-    "eval": (args, env) => run(args[0].replace("'", ""), env)[0],
+    "eval": (args, env) => interpret_exp(parse(tokenize(args[0].replace("'", "")))[0], env),
     "lambda": (args, env) => {
-        const params = args[0].replace("'", "").replace(/(\(|\))/gm, "").split(" ");
-        const ast = parse(tokenize(args[1].replace("'", "")))[0];
+        const [params, body_ast] = args;
         return (lam_args) => {
-            // bind args in env
             for (let i = 0; i < params.length; ++i) {
-                env = {...env, [params[i]]: lam_args[i]};
+                env = {...env, [params[i]]: lam_args[i]}; // bind args in env
             }
-            return interpret_exp(ast, env);
+            return interpret_exp(body_ast, env);
         }
     },
     "call": (args) => args[0](args.splice(1)),
@@ -152,10 +147,11 @@ function REPL() {
     var rl = readline.createInterface(process.stdin, process.stdout);
     rl.setPrompt('h> ');
     rl.prompt();
-    rl.on('line', function(line) {
-        console.log(run(line, builtins)[0]);
+    rl.on('line', (line) => {
+        if (line.length > 0)
+            console.log(interpret(parse(tokenize(line)), builtins)[0]);
         rl.prompt();
-    }).on('close',function(){
+    }).on('close', () => {
         process.exit(0);
     });
 }
@@ -165,31 +161,33 @@ function REPL() {
 // TESTS:
 
 const program = `
-(set 'x 'bananpose)
+(set 'x 71)
 (set 'x 'hallo)
 
 (eval '(+ 111 111))
 
-(set 'reverse_div (lambda '(x y) '(/ y x)))
+(set 'reverse_div (lambda (x y) (/ y x)))
 
 (reverse_div 2 10)
 
-(call (lambda '(x y) '(* y x)) 2 44)
+(call (lambda (x y) (* y x)) 2 44)
 
 (if (not (eq? (+ (/ 10 2) 20) 45)) x 'eple)
 (if (eq? (+ (/ 10 2) 20) 45) x 'eple)
 
-(let 'k 3 '(+ k 6))
+(let (k 3) (+ k 6))
 
-(let 'k 3 '(let 'm 7 '(+ k m)))
+(let (k 3) (let (m 7) (+ k m)))
 
-(set 'pot (lambda '(x) '(* x x)))
+(set 'pot (lambda (x) (* x x)))
 (pot 6)
 (pot 666)
+
+(eval '(eq? '111 '111))
 `;
 
-const results = run(program, builtins);
-const expected = [null, null, 222, null, 5, 88, "'hallo", "'eple", 9, 10, null, 36, 443556];
+const results = interpret(parse(tokenize(program)), builtins);
+const expected = [null, null, 222, null, 5, 88, "'hallo", "'eple", 9, 10, null, 36, 443556, true];
 let passed = true;
 let fails = [];
 for (let i = 0; i < expected.length; ++i) {
