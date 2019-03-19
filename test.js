@@ -10,24 +10,32 @@ const program = `
 
 (reverse_div 2 10)
 
-(call (lambda (x y) (* y x)) 2 44)
+(call (lambda (x y) (* y x))
+    2 44)
 
-(if (not (eq? (+ (/ 10 2) 20) 45)) x 'eple)
-(if (eq? (+ (/ 10 2) 20) 45) x 'eple)
+(if (not (eq? (+ (/ 10 2) 20) 45))
+    x
+    'eple)
+
+(if (eq? (+ (/ 10 2) 20) 45)
+    x
+    'eple)
 
 (let (k 3) (+ k 6))
 
-(let (k 3) (let (m 7) (+ k m)))
+(let (k 3)
+    (let (m 7)
+        (+ k m)))
 
 (set 'pot (lambda (x) (* x x)))
 (pot 6)
-(pot 666)
+(pot 66)
 
 (eval '(eq? '111 '111))
 `;
 
 const results = run(program);
-const expected = [null, null, 222, null, 5, 88, "'hallo", "'eple", 9, 10, null, 36, 443556, true];
+const expected = [null, null, 222, null, 5, 88, "'hallo", "'eple", 9, 10, null, 36, 4356, true];
 let passed = true;
 let fails = [];
 for (let i = 0; i < expected.length; ++i) {
