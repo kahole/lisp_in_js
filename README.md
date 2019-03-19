@@ -22,6 +22,8 @@ h> (pow2 5)
 25
 h> (let (k 3) (+ k 6))
 9
+h> (let (k (- 10 5)) (+ k 5))
+10
 h> (eval '(+ 111 111))
 222
 h> (call (lambda (x y) (* y x)) 2 44)
