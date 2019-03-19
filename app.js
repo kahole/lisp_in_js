@@ -1,10 +1,8 @@
 const { match } = require('egna');
 
-
 function tokenize(input) {
 
     input = input.replace(/(\r\n|\n|\r)/gm, " ");
-    // console.log(input)
 
     const lexemes = [];
 
@@ -90,7 +88,14 @@ function lookup(env, store, key) {
 function interpret_exp(ast, env) {
     if (Array.isArray(ast)) {
         const operator = ast[0];
-        return lookup(env, store, operator)(ast.slice(1).map(a => interpret_exp(a, env)), env);
+        // Special cases for operators that shouldn't have their arguments intepreted immediately
+        switch(operator) {
+        case "if":
+            return lookup(env, store, operator)([interpret_exp(ast[1], env), ...ast.slice(2)], env);
+            break;
+        default:
+            return lookup(env, store, operator)(ast.slice(1).map(a => interpret_exp(a, env)), env);
+        }
     } else {
         if (typeof ast === "string") {
             if (ast.includes("'")) {
@@ -110,14 +115,13 @@ function interpret(ast, env) {
 
 const run = (src, env) => interpret(parse(tokenize(src)), env);
 
-
 const builtins = {
     "+": (args) => args[0] + args[1],
     "-": (args) => args[0] - args[1],
     "*": (args) => args[0] * args[1],
     "/": (args) => args[0] / args[1],
     "eq?": (args) => args[0] === args[1],
-    "if": (args) => args[0] ? args[1] : args[2],
+    "if": (args, env) => args[0] ? interpret_exp(args[1], env) : interpret_exp(args[2], env),
     "not": (args) => !args[0],
     "set": (args) => {store[args[0].replace("'", "")] = args[1]; return null;},
     "let": (args, env) => {
@@ -173,6 +177,7 @@ const program = `
 (call (lambda '(x y) '(* y x)) 2 44)
 
 (if (not (eq? (+ (/ 10 2) 20) 45)) x 'eple)
+(if (eq? (+ (/ 10 2) 20) 45) x 'eple)
 
 (let 'k 3 '(+ k 6))
 
@@ -184,7 +189,7 @@ const program = `
 `;
 
 const results = run(program, builtins);
-const expected = [null, null, 222, null, 5, 88, "'hallo", 9, 10, null, 36, 443556];
+const expected = [null, null, 222, null, 5, 88, "'hallo", "'eple", 9, 10, null, 36, 443556];
 let passed = true;
 let fails = [];
 for (let i = 0; i < expected.length; ++i) {
@@ -202,4 +207,4 @@ if (passed) {
 
 //------------------------------------------------------------
 
-REPL();
+// REPL();
