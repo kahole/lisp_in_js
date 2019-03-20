@@ -4,7 +4,7 @@ const program = `
 (set 'x 71)
 (set 'x 'hallo)
 
-(eval '(+ 111 111))
+(eval '(+ 112 (eval '(+ 55 55))))
 
 (set 'reverse_div (lambda (x y) (/ y x)))
 
@@ -32,13 +32,17 @@ const program = `
 (pot 66)
 
 (eval '(eq? '111 '111))
+
+(cdr (assoc 'a (list (list 'b 9) (list 'a 5))
 `;
 
 const results = run(program);
-const expected = [null, null, 222, null, 5, 88, "'hallo", "'eple", 9, 10, null, 36, 4356, true];
+const expected = [71, "hallo", 222, "function", 5, 88, "hallo", "eple", 9, 10, "function", 36, 4356, true, 5];
 let passed = true;
 let fails = [];
 for (let i = 0; i < expected.length; ++i) {
+    if (expected[i] === "function")
+        continue;
     if (expected[i] !== results[i]) {
         passed = false;
         fails.push(i);

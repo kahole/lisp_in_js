@@ -39,7 +39,7 @@ function tokenize(input) {
         match(
             '(', c => lexemes.push(c),
             ' ', c => builder.length === 0 ? null : lexemes.push(pop_builder()),
-            ')', c => [lexemes.push(pop_builder()), lexemes.push(c)],
+            ')', c => [builder.length === 0 ? null : lexemes.push(pop_builder()), lexemes.push(c)],
             "'", c => {quoting = true; quoting_parenths=(input.charAt(i+1) === '('); builder += c},
             c => {builder += c}
         )
@@ -89,16 +89,17 @@ function interpret_exp(ast, env) {
     if (Array.isArray(ast)) {
         const operator = ast[0];
         // Special cases for operators that shouldn't have their arguments intepreted immediately
+        const proc = lookup(env, store, operator);
         return match(
-            "if", _ => lookup(env, store, operator)([interpret_exp(ast[1], env), ...ast.slice(2)], env),
-            op(["let", "lambda"]), _ => lookup(env, store, operator)(ast.slice(1), env),
-            _ => lookup(env, store, operator)(ast.slice(1).map(a => interpret_exp(a, env)), env)
+            "if", _ => proc([interpret_exp(ast[1], env), ...ast.slice(2)], env),
+            op(["let", "lambda"]), _ => proc(ast.slice(1), env),
+            _ => proc(ast.slice(1).map(a => interpret_exp(a, env)), env)
         )(operator);
 
     } else {
         if (typeof ast === "string") {
             if (ast.includes("'")) {
-                return ast;
+                return parse([ast.slice(1)])[0];
             } else {
                 return lookup(env, store, ast);
             }
@@ -122,13 +123,17 @@ const builtins = {
     "eq?": (args) => args[0] === args[1],
     "if": (args, env) => args[0] ? interpret_exp(args[1], env) : interpret_exp(args[2], env),
     "not": (args) => !args[0],
-    "set": (args) => {store[args[0].replace("'", "")] = args[1]; return null;},
+    "cons": (args) => args[1] ? [args[0], ...args[1]] : [args[0]],
+    "list": (args) => args,
+    "car": (args) => args[0][0],
+    "cdr": (args) => args[0][1],
+    "assoc": (args) => args[1].find( e => e[0] === args[0]),
+    "set": (args) => {store[args[0]] = args[1]; return args[1];},
     "let": (args, env) => {
         const [key, value] = args[0];
         env = {...env, [key]: interpret_exp(value, env)};
         return interpret_exp(args[1], env);
     },
-    "eval": (args, env) => interpret_exp(parse(tokenize(args[0].replace("'", "")))[0], env),
     "lambda": (args, env) => {
         const [params, body_ast] = args;
         return (lam_args) => {
@@ -139,6 +144,8 @@ const builtins = {
         }
     },
     "call": (args) => args[0](args.splice(1)),
+    "eval": (args, env) => interpret_exp(parse(tokenize(args[0]))[0], env),
+    "print": (args) => console.log(args[0]),
 };
 
 function REPL() {

@@ -11,11 +11,11 @@ $ node app
 h> (+ 2 3)
 5
 h> (set 'my_var 'apple)
-null
+apple
 h> (if (not (eq? (+ (* 10 2) 20) 400)) my_var 'orange)
-'apple
+apple
 h> (set 'pow2 (lambda (x) (* x x)))
-null
+[Function]
 h> (pow2 5)
 25
 h> (let (k 3) (+ k 6))
@@ -26,6 +26,10 @@ h> (eval '(+ 111 111))
 222
 h> (call (lambda (x y) (* y x)) 2 44)
 88
+h> (set 'x (list (list 'a 5)))
+[ [ 'a', 5 ] ]
+h> (cdr (assoc 'a x))
+5
 h> 
 ```
 
@@ -64,6 +68,4 @@ console.log(run(program));
 
 ## todo
 
-- lists: `cons` `car` `cdr` `list`
-- structs / association lists: `(list (cons 'ditt 'datt) (cons 'osv 'etc))`
 - http and json-parsing: `(json-parse (req url)) -> assoc-list`
