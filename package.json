@@ -9,6 +9,7 @@
   "author": "Kristian Andersen Hole",
   "license": "ISC",
   "dependencies": {
-    "egna": "^1.0.5"
+    "egna": "^1.0.5",
+    "fetch": "^1.1.0"
   }
 }

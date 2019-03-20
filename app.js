@@ -1,4 +1,5 @@
 const { match, op } = require('egna');
+const fetch = require("fetch").fetchUrl;
 
 function tokenize(input) {
 
@@ -146,6 +147,11 @@ const builtins = {
     "call": (args) => args[0](args.splice(1)),
     "eval": (args, env) => interpret_exp(parse(tokenize(args[0]))[0], env),
     "print": (args) => console.log(args[0]),
+    "req": (args) => fetch(args[0], (err, meta, body) => args[1]([body.toString()])),
+    "json": (args) => {
+        const obj = JSON.parse(args[0]);
+        return Object.keys(obj).map( k => [ k, obj[k] ]);
+    },
 };
 
 function REPL() {
