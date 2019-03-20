@@ -12,7 +12,7 @@ h> (+ 2 3)
 5
 h> (set 'var 'apple)
 apple
-h> (if (not (eq? (+ (* 10 2) 20) 400)) my_var 'orange)
+h> (if (not (eq? (+ (* 10 2) 20) 400)) var 'orange)
 apple
 h> (set 'pow2 (lambda (x) (* x x)))
 [Function]
