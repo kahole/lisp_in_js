@@ -44,10 +44,10 @@ app.js also exports a `run` function for executing programs:
 const {run} = require("./app.js");
 
 const program = `
+
 (req 'https://jsonplaceholder.typicode.com/todos/1
     (lambda (msg)
             (print (assoc 'title (json msg))))
-
 
 (set 'reverse_div (lambda (x y) (/ y x)))
 
