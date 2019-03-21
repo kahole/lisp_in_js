@@ -33,11 +33,16 @@ const program = `
 
 (eval '(eq? '111 '111))
 
-(cdr (assoc 'a (list (list 'b 9) (list 'a 5))
+(cdr (assoc 'a (list (list 'b 9) (list 'a 5))))
+
+(set 'rec (lambda (x y) (if (eq? x 0) (+ y 0) (rec (- x 1) (+ y x)))))
+
+(rec 5 0)
 `;
 
 const results = run(program);
-const expected = [71, "hallo", 222, "function", 5, 88, "hallo", "eple", 9, 10, "function", 36, 4356, true, 5];
+const expected = [71, "hallo", 222, "function", 5, 88, "hallo", "eple", 9, 10, "function", 36, 4356, true, 5, "function", 15];
+
 let passed = true;
 let fails = [];
 for (let i = 0; i < expected.length; ++i) {
@@ -52,5 +57,5 @@ for (let i = 0; i < expected.length; ++i) {
 if (passed) {
     console.log("All tests passed!");
 } else {
-    fails.forEach( f => console.log("Failed test #" + f));
+    fails.forEach( f => console.log("Failed test #" + (f+1)));
 }

@@ -26,9 +26,15 @@ h> (set 'x (list (list 'a 5)))
 [ [ 'a', 5 ] ]
 h> (cdr (assoc 'a x))
 5
+h>
 h> (req 'https://jsonplaceholder.typicode.com/todos/1 (lambda (msg) (print (cdr (assoc 'title (json msg)))))
 undefined
 delectus aut aute
+h>
+h> (set 'rec (lambda (x y) (if (eq? x 0) (+ y 0) (rec (- x 1) (+ y x))))
+[Function]
+h> (rec 5 0)
+15
 h>
 ```
 
