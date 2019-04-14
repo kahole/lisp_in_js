@@ -2,55 +2,44 @@ const { match, op } = require("egna");
 const fetch = require("fetch").fetchUrl;
 
 function tokenize(input) {
-  input = input.replace(/(\r\n|\n|\r)/gm, " ");
+  input = input.replace(/(\r\n|\n|\r)/gm, " "); // make all whitespace space characters
 
   const lexemes = [];
+  let lex_builder = "";
+  let quote_level = 0;
 
-  let builder = "";
-  const pop_builder = () => {
-    let b = builder;
-    builder = "";
+  const pop_lex_builder = () => {
+    let b = lex_builder;
+    lex_builder = "";
     return b;
   };
-  let quoting = false;
-  let quote_level = 0;
-  let quoting_parenths = false;
 
-  for (var i = 0; i < input.length; i++) {
-    if (quoting) {
-      const c = input.charAt(i);
-      if (c === " " && !quoting_parenths) {
-        quoting = false;
-      } else if (c == "(") {
+  for (let c of input) {
+
+    if (quote_level >= 1) {
+      if (c === " " && quote_level <= 1) { //stop quoting if hit space char and below level 1 quoting
+        quote_level = 0;
+      } else if (c === "(") {
         quote_level++;
-      } else if (c == ")") {
-        if (quoting_parenths) {
-          quote_level--;
-          if (quote_level === 0) {
-            builder += c;
-            quoting = false;
-            continue;
-          }
-        } else {
-          quoting = false;
-        }
+      } else if (c === ")") {
+        quote_level--;
       }
-      if (quoting) {
-        builder += c;
+      if (quote_level >= 1) {
+        lex_builder += c;
         continue;
       }
     }
+    
     match(
       "(", c => lexemes.push(c),
-      " ", c => (builder.length === 0 ? null : lexemes.push(pop_builder())),
-      ")", c => [builder.length === 0 ? null : lexemes.push(pop_builder()), lexemes.push(c)],
+      " ", c => (lex_builder.length === 0 ? null : lexemes.push(pop_lex_builder())),
+      ")", c => [lex_builder.length === 0 ? null : lexemes.push(pop_lex_builder()), lexemes.push(c)],
       "'", c => {
-        quoting = true;
-        quoting_parenths = input.charAt(i + 1) === "(";
-        builder += c;
+        quote_level = 1;
+        lex_builder += c;
       },
-      c => { builder += c; }
-    )(input.charAt(i));
+      c => { lex_builder += c; }
+    )(c);
   }
   return lexemes;
 }
