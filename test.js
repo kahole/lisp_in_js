@@ -6,6 +6,8 @@ const program = `
 
 (eval '(+ 112 (eval '(+ 55 55))))
 
+(eval '(+ 112 (eval '(+ 55 55) ) ) ) 
+
 (set 'reverse_div (lambda (x y) (/ y x)))
 
 (reverse_div 2 10)
@@ -41,7 +43,7 @@ const program = `
 `;
 
 const results = run(program);
-const expected = [71, "hallo", 222, "function", 5, 88, "hallo", "eple", 9, 10, "function", 36, 4356, true, 5, "function", 15];
+const expected = [71, "hallo", 222, 222, "function", 5, 88, "hallo", "eple", 9, 10, "function", 36, 4356, true, 5, "function", 15];
 
 let passed = true;
 let fails = [];
@@ -55,7 +57,7 @@ for (let i = 0; i < expected.length; ++i) {
 }
 
 if (passed) {
-  console.log("All tests passed!");
+  console.log("All tests passed! [" + results.length + "/" + expected.length + "]");
 } else {
   fails.forEach( f => console.log("Failed test #" + (f+1)));
 }
