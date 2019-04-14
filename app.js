@@ -41,24 +41,15 @@ function tokenize(input) {
       }
     }
     match(
-      "(",
-      c => lexemes.push(c),
-      " ",
-      c => (builder.length === 0 ? null : lexemes.push(pop_builder())),
-      ")",
-      c => [
-        builder.length === 0 ? null : lexemes.push(pop_builder()),
-        lexemes.push(c)
-      ],
-      "'",
-      c => {
+      "(", c => lexemes.push(c),
+      " ", c => (builder.length === 0 ? null : lexemes.push(pop_builder())),
+      ")", c => [builder.length === 0 ? null : lexemes.push(pop_builder()), lexemes.push(c)],
+      "'", c => {
         quoting = true;
         quoting_parenths = input.charAt(i + 1) === "(";
         builder += c;
       },
-      c => {
-        builder += c;
-      }
+      c => { builder += c; }
     )(input.charAt(i));
   }
   return lexemes;
@@ -66,7 +57,11 @@ function tokenize(input) {
 
 function parse_symbol(s) {
   if (isNaN(s)) {
-    return match("true", s => true, "false", s => false, s => s)(s);
+    return match(
+      "true", s => true,
+      "false", s => false,
+      s => s
+    )(s);
   } else {
     return +s;
   }
@@ -78,12 +73,8 @@ function parse(lexemes) {
   let popout = false;
   while (lexemes.length > 0 && !popout) {
     match(
-      "(",
-      l => ast.push(parse(lexemes)),
-      ")",
-      l => {
-        popout = true;
-      },
+      "(", l => ast.push(parse(lexemes)),
+      ")", l => { popout = true; },
       l => ast.push(parse_symbol(l))
     )(lexemes.shift());
   }
@@ -105,10 +96,8 @@ function interpret_exp(ast, env) {
     // Special cases for operators that shouldn't have their arguments intepreted immediately
     const proc = lookup(env, store, operator);
     return match(
-      "if",
-      _ => proc([interpret_exp(ast[1], env), ...ast.slice(2)], env),
-      op(["let", "lambda"]),
-      _ => proc(ast.slice(1), env),
+      "if", _ => proc([interpret_exp(ast[1], env), ...ast.slice(2)], env),
+      op(["let", "lambda"]), _ => proc(ast.slice(1), env),
       _ => proc(ast.slice(1).map(a => interpret_exp(a, env)), env)
     )(operator);
   } else {
