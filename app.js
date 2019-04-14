@@ -125,24 +125,24 @@ const builtins = {
   "*": args => args[0] * args[1],
   "/": args => args[0] / args[1],
   "eq?": args => args[0] === args[1],
-  if: (args, env) =>
+  "if": (args, env) =>
     args[0] ? interpret_exp(args[1], env) : interpret_exp(args[2], env),
-  not: args => !args[0],
-  cons: args => (args[1] ? [args[0], ...args[1]] : [args[0]]),
-  list: args => args,
-  car: args => args[0][0],
-  cdr: args => args[0][1],
-  assoc: args => args[1].find(e => e[0] === args[0]),
-  set: args => {
+  "not": args => !args[0],
+  "cons": args => (args[1] ? [args[0], ...args[1]] : [args[0]]),
+  "list": args => args,
+  "car": args => args[0][0],
+  "cdr": args => args[0][1],
+  "assoc": args => args[1].find(e => e[0] === args[0]),
+  "set": args => {
     store[args[0]] = args[1];
     return args[1];
   },
-  let: (args, env) => {
+  "let": (args, env) => {
     const [key, value] = args[0];
     env = { ...env, [key]: interpret_exp(value, env) };
     return interpret_exp(args[1], env);
   },
-  lambda: (args, env) => {
+  "lambda": (args, env) => {
     const [params, body_ast] = args;
     return lam_args => {
       for (let i = 0; i < params.length; ++i) {
@@ -151,11 +151,11 @@ const builtins = {
       return interpret_exp(body_ast, env);
     };
   },
-  call: args => args[0](args.splice(1)),
-  eval: (args, env) => interpret_exp(parse(tokenize(args[0]))[0], env),
-  print: args => console.log(args[0]),
-  req: args => fetch(args[0], (err, meta, body) => args[1]([body.toString()])),
-  json: args => {
+  "call": args => args[0](args.splice(1)),
+  "eval": (args, env) => interpret_exp(parse(tokenize(args[0]))[0], env),
+  "print": args => console.log(args[0]),
+  "req": args => fetch(args[0], (err, meta, body) => args[1]([body.toString()])),
+  "json": args => {
     const obj = JSON.parse(args[0]);
     return Object.keys(obj).map(k => [k, obj[k]]);
   }
