@@ -46,16 +46,16 @@ const expected = [71, "hallo", 222, "function", 5, 88, "hallo", "eple", 9, 10, "
 let passed = true;
 let fails = [];
 for (let i = 0; i < expected.length; ++i) {
-    if (expected[i] === "function")
-        continue;
-    if (expected[i] !== results[i]) {
-        passed = false;
-        fails.push(i);
-    }
+  if (expected[i] === "function")
+    continue;
+  if (expected[i] !== results[i]) {
+    passed = false;
+    fails.push(i);
+  }
 }
 
 if (passed) {
-    console.log("All tests passed!");
+  console.log("All tests passed!");
 } else {
-    fails.forEach( f => console.log("Failed test #" + (f+1)));
+  fails.forEach( f => console.log("Failed test #" + (f+1)));
 }
