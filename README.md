@@ -1,9 +1,7 @@
 Lisp interpreter in Javascript
 ---
 
-All the code resides in app.js
-
-Running app.js gives you a lisp prompt:
+Running repl.js gives you a lisp prompt:
 
 ```lisp
 $ node app
