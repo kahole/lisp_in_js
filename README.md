@@ -71,3 +71,29 @@ const program = `
 
 console.log(run(program));
 ```
+
+### builtins
+
+| Function |   |
+|----------|---|
+| `+`      |   |
+| `-`      |   |
+| `*`      |   |
+| `/`      |   |
+| `eq?`    |   |
+| `if`     |   |
+| `not`    |   |
+| `cons`   |   |
+| `car`    |   |
+| `cdr`    |   |
+| `list`   |   |
+| `assoc`  |   |
+| `set`    |   |
+| `defun`  |   |
+| `let`    |   |
+| `lambda` |   |
+| `call`   |   |
+| `eval`   |   |
+| `print`  |   |
+| `req`    |   |
+| `json`   |   |
