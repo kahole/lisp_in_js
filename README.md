@@ -29,9 +29,9 @@ h> (req 'https://jsonplaceholder.typicode.com/todos/1 (lambda (msg) (print (cdr 
 undefined
 delectus aut aute
 h>
-h> (set 'rec (lambda (x y) (if (eq? x 0) (+ y 0) (rec (- x 1) (+ y x))))
+h> (set 'recursive (lambda (x y) (if (eq? x 0) y (recursive (- x 1) (+ y x))))
 [Function]
-h> (rec 5 0)
+h> (recursive 5 0)
 15
 h>
 ```
