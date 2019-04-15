@@ -1,4 +1,4 @@
-const {run} = require("./app.js");
+const {run} = require("./lisp.js");
 
 const program = `
 (set 'x 71)

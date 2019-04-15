@@ -4,7 +4,7 @@ Lisp interpreter in Javascript
 Running repl.js gives you a lisp prompt:
 
 ```lisp
-$ node app
+$ node repl
 
 h> (+ 2 3)
 5
@@ -36,10 +36,10 @@ h> (rec 5 0)
 h>
 ```
 
-app.js also exports a `run` function for executing programs:
+lisp.js exports a `run` function for executing programs:
 
 ```javascript
-const {run} = require("./app.js");
+const {run} = require("./lisp.js");
 
 const program = `
 

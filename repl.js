@@ -1,4 +1,4 @@
-const {tokenize, parse, interpret} = require("./app.js");
+const {tokenize, parse, interpret} = require("./lisp.js");
 
 function REPL() {
   const readline = require("readline");

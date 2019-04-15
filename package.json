@@ -2,7 +2,7 @@
   "name": "lispjs",
   "version": "0.0.1",
   "description": "lisp interpreter",
-  "main": "app.js",
+  "main": "lisp.js",
   "scripts": {
     "test": "node test"
   },
