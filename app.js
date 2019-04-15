@@ -82,11 +82,11 @@ function lookup(env, store, key) {
 function interpret_exp(ast, env) {
   if (Array.isArray(ast)) {
     const operator = ast[0];
-    // Special cases for operators that shouldn't have their arguments intepreted immediately
     const proc = lookup(env, store, operator);
+    // Special cases for operators that shouldn't have their arguments intepreted immediately
     return match(
       "if", _ => proc([interpret_exp(ast[1], env), ...ast.slice(2)], env),
-      op(["let", "lambda"]), _ => proc(ast.slice(1), env),
+      op(["let", "lambda", "defun"]), _ => proc(ast.slice(1), env),
       _ => proc(ast.slice(1).map(a => interpret_exp(a, env)), env)
     )(operator);
   } else {
@@ -106,16 +106,13 @@ function interpret(ast, env) {
   return ast.map(exp => interpret_exp(exp, env));
 }
 
-const store = {};
-
-const builtins = {
+const store = {
   "+": args => args[0] + args[1],
   "-": args => args[0] - args[1],
   "*": args => args[0] * args[1],
   "/": args => args[0] / args[1],
   "eq?": args => args[0] === args[1],
-  "if": (args, env) =>
-    args[0] ? interpret_exp(args[1], env) : interpret_exp(args[2], env),
+  "if": (args, env) => args[0] ? interpret_exp(args[1], env) : interpret_exp(args[2], env),
   "not": args => !args[0],
   "cons": args => (args[1] ? [args[0], ...args[1]] : [args[0]]),
   "list": args => args,
@@ -126,6 +123,10 @@ const builtins = {
     store[args[0]] = args[1];
     return args[1];
   },
+  "defun": (args, env) => { // can be made as a macro expanding to set and lambda combined
+    store[args[0]] = store["lambda"](args.slice(1), env);
+    return store[args[0]];
+  },
   "let": (args, env) => {
     const [key, value] = args[0];
     env = { ...env, [key]: interpret_exp(value, env) };
@@ -135,7 +136,7 @@ const builtins = {
     const [params, body_ast] = args;
     return lam_args => {
       for (let i = 0; i < params.length; ++i) {
-        env = { ...env, [params[i]]: lam_args[i] }; // bind args in env
+        env = {...env, [params[i]]: lam_args[i]}; // bind args in env
       }
       return interpret_exp(body_ast, env);
     };
@@ -150,30 +151,9 @@ const builtins = {
   }
 };
 
-function REPL() {
-  var readline = require("readline");
-  var rl = readline.createInterface(process.stdin, process.stdout);
-  rl.setPrompt("h> ");
-  rl.prompt();
-  rl.on("line", line => {
-    if (line.length > 0) {
-      try {
-        console.log(interpret(parse(tokenize(line)), builtins)[0]);
-      } catch (e) {
-        console.log(e.message);
-      }
-    }
-    rl.prompt();
-  }).on("close", () => {
-    process.exit(0);
-  });
-}
-
-if (require.main === module) {
-  REPL();
-}
-
 module.exports = {
-  run: src => interpret(parse(tokenize(src)), builtins),
-  REPL: REPL
+  tokenize,
+  parse,
+  interpret,
+  run: src => interpret(parse(tokenize(src)), {})
 };
