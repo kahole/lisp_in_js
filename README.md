@@ -25,7 +25,7 @@ h> (set 'x (list (list 'a 5)))
 h> (cdr (assoc 'a x))
 5
 h>
-h> (req 'https://jsonplaceholder.typicode.com/todos/1 (lambda (msg) (print (cdr (assoc 'title (json msg)))))
+h> (req 'https://jsonplaceholder.typicode.com/todos/1 (lambda (msg) (print (cdr (assoc 'title (json msg))))))
 undefined
 delectus aut aute
 h>
