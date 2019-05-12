@@ -83,7 +83,7 @@ function interpret_exp(ast, env) {
   if (Array.isArray(ast)) {
     const operator = ast[0];
     const proc = lookup(env, store, operator);
-    // Special cases for operators that shouldn't have their arguments intepreted immediately
+    // Special cases for operators that shouldn't have their arguments intepreted immediately.. TODO: tail call optimization
     return match(
       "if", _ => proc([interpret_exp(ast[1], env), ...ast.slice(2)], env),
       op(["let", "lambda", "defun"]), _ => proc(ast.slice(1), env),
