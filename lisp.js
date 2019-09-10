@@ -1,5 +1,5 @@
 const { match, op } = require("egna");
-const https = require("https");
+const fetch = require('node-fetch');
 
 function tokenize(input) {
   input = input.replace(/(\r\n|\n|\r)/gm, " "); // make all whitespace space characters
@@ -145,12 +145,11 @@ const store = {
   "call": args => args[0](args.splice(1)),
   "eval": (args, env) => interpret_exp(parse(tokenize(args[0]))[0], env),
   "print": args => console.log(args[0]),
-  "req": args => {https.get(args[0], res => {
-    let body = "";
-    res.on("data", data => {
-      body += data;
-    }).on("end", () => args[1]([body]));
-  })},
+  "req": args => {
+    fetch(args[0])
+      .then(res => res.text())
+      .then((res) => args[1]([res]));
+  },
   "json": args => {
     const obj = JSON.parse(args[0]);
     return Object.keys(obj).map(k => [k, obj[k]]);
