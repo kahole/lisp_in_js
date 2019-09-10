@@ -74,7 +74,7 @@ function lookup(env, store, key) {
   if (env.hasOwnProperty(key)) {
     return env[key];
   } else {
-    if (store[key] === undefined) throw Error("variable not bound: " + key);
+    if (store[key] === undefined) throw Error("Variable not bound: " + key);
     return store[key];
   }
 }
@@ -83,12 +83,13 @@ function interpret_exp(ast, env) {
   if (Array.isArray(ast)) {
     const operator = ast[0];
     const proc = lookup(env, store, operator);
-    // Special cases for operators that shouldn't have their arguments intepreted immediately.. TODO: tail call optimization
+    // Special cases for operators that shouldn't have their arguments intepreted immediately.
     return match(
       "if", _ => proc([interpret_exp(ast[1], env), ...ast.slice(2)], env),
       op(["let", "lambda", "defun"]), _ => proc(ast.slice(1), env),
       _ => proc(ast.slice(1).map(a => interpret_exp(a, env)), env)
     )(operator);
+    // TODO: tail call optimization
   } else {
     if (typeof ast === "string") {
       if (ast.includes("'")) {
@@ -107,10 +108,10 @@ function interpret(ast, env) {
 }
 
 const store = {
-  "+": args => args[0] + args[1],
-  "-": args => args[0] - args[1],
-  "*": args => args[0] * args[1],
-  "/": args => args[0] / args[1],
+  "+": args => args.reduce((sum, arg) => arg+sum, 0),
+  "-": args => args.length > 1 ? args.slice(1).reduce((sum, arg) => sum-arg, args[0]) : (-args[0]),
+  "*": args => args.reduce((sum, arg) => sum*arg, 1),
+  "/": args => args.splice(1).reduce((sum, arg) => sum/arg, args[0]),
   "eq?": args => args[0] === args[1],
   "if": (args, env) => args[0] ? interpret_exp(args[1], env) : interpret_exp(args[2], env),
   "not": args => !args[0],
