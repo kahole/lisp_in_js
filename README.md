@@ -1,6 +1,11 @@
 Lisp interpreter in Javascript
 ---
+##### Table of Contents
+1. [REPL](#repl)
+2. [Library](#lib)
+3. [Built-ins list](#builtins)
 
+#### REPL <a name="repl"></a>
 Running repl.js gives you a lisp prompt:
 
 ```lisp
@@ -36,7 +41,10 @@ h> (recursive 5 0)
 h>
 ```
 
-lisp.js exports a `run` function for executing programs:
+#### Library <a name="lib"></a>
+lisp.js exports functions: `tokenize`, `parse`, `interpret`, `run`
+
+Using `run` function to execute a program:
 
 ```javascript
 const {run} = require("./lisp.js");
@@ -71,16 +79,16 @@ const program = `
 
 console.log(run(program));
 ```
-
-### builtins
+    
+### Built-ins <a name="builtins"></a>
 
 | Function |   |
 |----------|---|
-| `+`      |   |
-| `-`      |   |
-| `*`      |   |
-| `/`      |   |
-| `eq?`    |   |
+| `+`      | `(+ &rest NUMBERS)` Returns sum of given args. |
+| `-`      | `(- first &rest NUMBERS)` Subtract numbers from the first number. If only one number given, it is negated. |
+| `*`      | `(+ &rest NUMBERS)` Returns product of given args. |
+| `/`      | `(+ first &rest NUMBERS)` Returns division of first and the rest of the given args. |
+| `eq?`    | `(eq? a b)` Checks for equality between a and b. Returns true/false  |
 | `if`     |   |
 | `not`    |   |
 | `cons`   |   |
