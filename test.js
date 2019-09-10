@@ -42,22 +42,32 @@ const program = `
 (rec 5 0)
 `;
 
-const results = run(program);
-const expected = [71, "hallo", 222, 222, "function", 5, 88, "hallo", "eple", 9, 10, "function", 36, 4356, true, 5, "function", 15];
+async function runTests() {
 
-let passed = true;
-let fails = [];
-for (let i = 0; i < expected.length; ++i) {
-  if (expected[i] === "function")
-    continue;
-  if (expected[i] !== results[i]) {
-    passed = false;
-    fails.push(i);
+  let results;
+  try {
+    results = await run(program);
+  } catch (e) {
+    console.log(e);
+  }
+  const expected = [71, "hallo", 222, 222, "function", 5, 88, "hallo", "eple", 9, 10, "function", 36, 4356, true, 5, "function", 15];
+
+  let passed = true;
+  let fails = [];
+  for (let i = 0; i < expected.length; ++i) {
+    if (expected[i] === "function")
+      continue;
+    if (expected[i] !== results[i]) {
+      passed = false;
+      fails.push(i);
+    }
+  }
+
+  if (passed) {
+    console.log("All tests passed! [" + results.length + "/" + expected.length + "]");
+  } else {
+    fails.forEach( f => console.log("Failed test #" + (f+1)));
   }
 }
 
-if (passed) {
-  console.log("All tests passed! [" + results.length + "/" + expected.length + "]");
-} else {
-  fails.forEach( f => console.log("Failed test #" + (f+1)));
-}
+runTests();

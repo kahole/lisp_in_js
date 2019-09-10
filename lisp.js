@@ -79,15 +79,15 @@ function lookup(env, store, key) {
   }
 }
 
-function interpret_exp(ast, env) {
+async function interpret_exp(ast, env) {
   if (Array.isArray(ast)) {
     const operator = ast[0];
     const proc = lookup(env, store, operator);
     // Special cases for operators that shouldn't have their arguments intepreted immediately.
     return match(
-      "if", _ => proc([interpret_exp(ast[1], env), ...ast.slice(2)], env),
-      op(["let", "lambda", "defun"]), _ => proc(ast.slice(1), env),
-      _ => proc(ast.slice(1).map(a => interpret_exp(a, env)), env)
+      "if", async _ => proc([await interpret_exp(ast[1], env), ...ast.slice(2)], env),
+      op(["let", "lambda", "defun"]), async _ => proc(ast.slice(1), env),
+      async _ => await proc(await Promise.all(ast.slice(1).map(a => interpret_exp(a, env))), env)
     )(operator);
     // TODO: tail call optimization
   } else {
@@ -103,8 +103,15 @@ function interpret_exp(ast, env) {
   }
 }
 
-function interpret(ast, env) {
-  return ast.map(exp => interpret_exp(exp, env));
+async function interpret(ast, env) {
+
+  const results = [];
+  for (let i = 0; i < ast.length; i++) {
+    let exp = ast[i];
+    results.push(await interpret_exp(exp, env));
+  }
+
+  return results;
 }
 
 const store = {
@@ -146,9 +153,8 @@ const store = {
   "eval": (args, env) => interpret_exp(parse(tokenize(args[0]))[0], env),
   "print": args => console.log(args[0]),
   "req": args => {
-    fetch(args[0])
-      .then(res => res.text())
-      .then((res) => args[1]([res]));
+    return fetch(args[0])
+      .then(res => res.text());
   },
   "json": args => {
     const obj = JSON.parse(args[0]);

@@ -5,10 +5,10 @@ function REPL() {
   const rl = readline.createInterface(process.stdin, process.stdout);
   rl.setPrompt("h> ");
   rl.prompt();
-  rl.on("line", line => {
+  rl.on("line", async line => {
     if (line.length > 0) {
       try {
-        console.log(interpret(parse(tokenize(line)), {})[0]);
+        console.log((await interpret(parse(tokenize(line)), {}))[0]);
       } catch (e) {
         console.log(e.message);
       }

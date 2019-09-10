@@ -30,8 +30,7 @@ h> (set 'x (list (list 'a 5)))
 h> (cdr (assoc 'a x))
 5
 h>
-h> (req 'https://jsonplaceholder.typicode.com/todos/1 (lambda (msg) (print (cdr (assoc 'title (json msg))))))
-undefined
+h> (print (cdr (assoc 'title (json (req 'https://jsonplaceholder.typicode.com/todos/1)))))
 delectus aut aute
 h>
 h> (set 'recursive (lambda (x y) (if (eq? x 0) y (recursive (- x 1) (+ y x))))
@@ -51,9 +50,7 @@ const {run} = require("./lisp.js");
 
 const program = `
 
-(req 'https://jsonplaceholder.typicode.com/todos/1
-    (lambda (msg)
-            (print (assoc 'title (json msg))))
+(print (cdr (assoc 'title (json (req 'https://jsonplaceholder.typicode.com/todos/1)))))
 
 (set 'reverse_div (lambda (x y) (/ y x)))
 
