@@ -4,6 +4,7 @@ Lisp interpreter in Javascript
 1. [REPL](#repl)
 2. [Library](#lib)
 3. [Built-ins list](#builtins)
+4. [Roadmap](#roadmap)
 
 #### REPL <a name="repl"></a>
 Running repl.js gives you a lisp prompt:
@@ -102,3 +103,10 @@ console.log(run(program));
 | `print`  |   |
 | `req`    |   |
 | `json`   |   |
+
+### Roadmap <a name="roadmap"></a>
+
+- Lisp-in-lisp-in-js
+  - Strings (?)
+- Concurrency, forking interpreter
+- Tail-call optimization
