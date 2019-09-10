@@ -29,7 +29,7 @@ function tokenize(input) {
         continue;
       }
     }
-    
+
     match(
       "(", c => lexemes.push(c),
       " ", c => (lex_builder.length === 0 ? null : lexemes.push(pop_lex_builder())),
@@ -43,6 +43,8 @@ function tokenize(input) {
   }
   return lexemes;
 }
+
+const contains = c => (m) => m.includes(c);
 
 function parse_symbol(s) {
   if (isNaN(s)) {
@@ -94,6 +96,8 @@ async function interpret_exp(ast, env) {
     if (typeof ast === "string") {
       if (ast.includes("'")) {
         return parse([ast.slice(1)])[0];
+      } else if (ast.includes("\"")) {
+        return ast.replace(/"/g, "");
       } else {
         return lookup(env, store, ast);
       }
@@ -159,7 +163,9 @@ const store = {
   "json": args => {
     const obj = JSON.parse(args[0]);
     return Object.keys(obj).map(k => [k, obj[k]]);
-  }
+  },
+  // String functions
+  
 };
 
 module.exports = {
