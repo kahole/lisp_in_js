@@ -106,9 +106,9 @@ console.log(run(program));
 
 ### Roadmap <a name="roadmap"></a>
 
+- Docs for all functions
 - Datastructure around types
 - Lisp-in-lisp-in-js
-  - Strings (?)
 - Concurrency, forking interpreter
 - Macros
 - Tail-call optimization

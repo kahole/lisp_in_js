@@ -1,4 +1,3 @@
-
 (defun token (chars)
   (let (char (car chars))
     (match char
@@ -30,19 +29,25 @@
     
     (match (car lexemes)
            "(" (let (exp (parse (cdr lexemes)))
-                 (list (list exp) (parse (slice (+ (length exp) 2) (length lexemes) lexemes)))
+                 (cons exp (parse (slice (+ (length exp) 2) (length lexemes) lexemes)))
                  )
            ")" (list)
            (cons (parse-symbol (car lexemes)) (parse (cdr lexemes))))
     )
   )
 
-(defun interpret (ast store env) ast)
+(defun interpret (ast store env)
+
+  (call (car (cdr (assoc (car ast) store))) (cdr ast))
+  )
 
 
-
+(set 'store
+     (list
+      (list '+ (lambda (args) (+ (car args) (car (cdr args)))))
+      ))
 
 (defun repl (prev)
-  (repl (print (interpret (parse (tokenize (read "h2> "))) (list) (list)))))
+  (repl (print (interpret (parse (tokenize (read "h2> "))) store (list)))))
 
 (repl 'start)
