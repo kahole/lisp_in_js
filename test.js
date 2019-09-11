@@ -35,7 +35,7 @@ const program = `
 
 (eval '(eq? '111 '111))
 
-(cdr (assoc 'a (list (list 'b 9) (list 'a 5))))
+(car (cdr (assoc 'a (list (list 'b 9) (list 'a 5)))))
 
 (set 'rec (lambda (x y) (if (eq? x 0) (+ y 0) (rec (- x 1) (+ y x)))))
 
@@ -66,7 +66,7 @@ async function runTests() {
   if (passed) {
     console.log("All tests passed! [" + results.length + "/" + expected.length + "]");
   } else {
-    fails.forEach( f => console.log("Failed test #" + (f+1)));
+    fails.forEach( f => console.log("Failed test #" + (f+1) + " expected: " + expected[f] + " got: " + results[f]));
   }
 }
 

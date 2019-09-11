@@ -1,5 +1,6 @@
 const { match, op } = require("egna");
 const fetch = require('node-fetch');
+const readline = require('readline');
 
 function tokenize(input) {
   input = input.replace(/(\r\n|\n|\r)/gm, " "); // make all whitespace space characters
@@ -7,6 +8,7 @@ function tokenize(input) {
   const lexemes = [];
   let lex_builder = "";
   let quote_level = 0;
+  let is_string_literal = false;
 
   const pop_lex_builder = () => {
     let b = lex_builder;
@@ -30,12 +32,24 @@ function tokenize(input) {
       }
     }
 
+    if (is_string_literal) {
+      if (c === "\"") {
+        is_string_literal = false;
+      }
+      lex_builder += c;
+      continue;
+    }
+
     match(
       "(", c => lexemes.push(c),
       " ", c => (lex_builder.length === 0 ? null : lexemes.push(pop_lex_builder())),
       ")", c => [lex_builder.length === 0 ? null : lexemes.push(pop_lex_builder()), lexemes.push(c)],
       "'", c => {
         quote_level = 1;
+        lex_builder += c;
+      },
+      "\"", c => {
+        is_string_literal = true;
         lex_builder += c;
       },
       c => { lex_builder += c; }
@@ -87,7 +101,7 @@ async function interpret_exp(ast, env) {
     const proc = lookup(env, store, operator);
     // Special cases for operators that shouldn't have their arguments intepreted immediately.
     return match(
-      "if", async _ => proc([await interpret_exp(ast[1], env), ...ast.slice(2)], env),
+      op(["if", "match"]), async _ => proc([await interpret_exp(ast[1], env), ...ast.slice(2)], env),
       op(["let", "lambda", "defun"]), async _ => proc(ast.slice(1), env),
       async _ => await proc(await Promise.all(ast.slice(1).map(a => interpret_exp(a, env))), env)
     )(operator);
@@ -129,7 +143,8 @@ const store = {
   "cons": args => (args[1] ? [args[0], ...args[1]] : [args[0]]),
   "list": args => args,
   "car": args => args[0][0],
-  "cdr": args => args[0][1],
+  "cdr": args => args[0].slice(1),
+  "length": args => args[0].length,
   "assoc": args => args[1].find(e => e[0] === args[0]),
   "set": args => {
     store[args[0]] = args[1];
@@ -155,7 +170,7 @@ const store = {
   },
   "call": args => args[0](args.splice(1)),
   "eval": (args, env) => interpret_exp(parse(tokenize(args[0]))[0], env),
-  "print": args => console.log(args[0]),
+  "print": args => console.log(JSON.stringify(args[0])),
   "req": args => {
     return fetch(args[0])
       .then(res => res.text());
@@ -164,7 +179,32 @@ const store = {
     const obj = JSON.parse(args[0]);
     return Object.keys(obj).map(k => [k, obj[k]]);
   },
+  "read": (prompt) => {
+    return new Promise((resolve, reject) => {
+      const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+      });
+      rl.question(prompt, (answer) => {
+        resolve(answer);
+        rl.close();
+      });
+    });
+    
+  },
+  "match": async (args, env) => {
+    const val = args[0];
+    for (let i = 1; i < args.length-2; i+=2) {
+      if (val === await interpret_exp(args[i], env)) {
+        return interpret_exp(args[i+1], env);
+      }
+    }
+    return interpret_exp(args[args.length-1], env);
+  },
+  "slice": args => args[2].slice(args[0], args[1]),
   // String functions
+  "concat": args => args.reduce((str, arg) => str+arg, ""),
+  "substring": args => args[2].substring(args[0], args[1]),
   
 };
 
