@@ -83,7 +83,8 @@
 
       (if (eq? (type ast) "string")
           (match true
-                 (eq? (substring 0 1 ast) "'") (replace "'" "" ast)
+                 (eq? (substring 0 1 ast) "'") (substring 1 (length ast) ast)
+                 (eq? (substring 0 1 ast) "\"") (substring 1 (- (length ast) 1) ast)
                  (lookup env ast))
         ast
         )

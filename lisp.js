@@ -34,7 +34,11 @@ function tokenize(input) {
 
     if (is_string_literal) {
       if (c === "\"") {
-        is_string_literal = false;
+        if (lex_builder[lex_builder.length-1] !== "\\") {
+          is_string_literal = false;
+        } else {
+          lex_builder[lex_builder.length-1] = "\"";
+        }
       }
       lex_builder += c;
       continue;
@@ -118,7 +122,7 @@ async function interpret_exp(ast, env) {
       if (ast[0] === "'") {
         return parse([ast.slice(1)])[0];
       } else if (ast[0] === "\"") {
-        return ast.replace(/"/g, "");
+        return ast.slice(1, ast.length-1);
       } else {
         return lookup(env, store, ast);
       }
@@ -223,7 +227,7 @@ const store = {
   "concat": args => args.reduce((str, arg) => str+arg, ""),
   "substring": args => args[2].substring(args[0], args[1]),
   // "includes": args => args[0].includes(args[1]),
-  "replace": args => args[2].replace(args[0], args[1]),
+  "replace": args => args[2].replace(new RegExp(args[0], "g"), args[1]),
   
 };
 
