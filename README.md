@@ -106,10 +106,10 @@ console.log(run(program));
 
 ### Roadmap <a name="roadmap"></a>
 
-- proc function, and proper cons-cells (?)
 - Datastructure around types
 - Lisp-in-lisp-in-js
 - Concurrency, forking interpreter
+- proper cons-cells (?)
 - Macros
 - Tail-call optimization
 - Docs for all functions
