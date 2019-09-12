@@ -103,7 +103,14 @@ async function interpret_exp(ast, env) {
     return match(
       op(["if", "match"]), async _ => proc([await interpret_exp(ast[1], env), ...ast.slice(2)], env),
       op(["let", "lambda", "defun"]), async _ => proc(ast.slice(1), env),
-      async _ => await proc(await Promise.all(ast.slice(1).map(a => interpret_exp(a, env))), env)
+      async _ => {
+        const args = ast.slice(1);
+        const results = []; 
+        for (let i = 0; i < args.length; i++) {
+          results.push(await interpret_exp(args[i], env));
+        }
+        return await proc(results, env);
+      }
     )(operator);
     // TODO: tail call optimization
   } else {
@@ -170,6 +177,7 @@ const store = {
   },
   "call": args => args[0](args.splice(1)),
   "eval": (args, env) => interpret_exp(parse(tokenize(args[0]))[0], env),
+  "proc": args => args[args.length-1],
   "print": args => console.log(JSON.stringify(args[0])),
   "req": args => {
     return fetch(args[0])
@@ -190,7 +198,6 @@ const store = {
         rl.close();
       });
     });
-    
   },
   "match": async (args, env) => {
     const val = args[0];
@@ -202,6 +209,10 @@ const store = {
     return interpret_exp(args[args.length-1], env);
   },
   "slice": args => args[2].slice(args[0], args[1]),
+  "flat-length": args => args[0].flat().length,
+  "nil": [],
+  "infer-type": args => parse_symbol(args[0]),
+  "is-list": args => Array.isArray(args[0]),
   // String functions
   "concat": args => args.reduce((str, arg) => str+arg, ""),
   "substring": args => args[2].substring(args[0], args[1]),
