@@ -115,9 +115,9 @@ async function interpret_exp(ast, env) {
     // TODO: tail call optimization
   } else {
     if (typeof ast === "string") {
-      if (ast.includes("'")) {
+      if (ast[0] === "'") {
         return parse([ast.slice(1)])[0];
-      } else if (ast.includes("\"")) {
+      } else if (ast[0] === "\"") {
         return ast.replace(/"/g, "");
       } else {
         return lookup(env, store, ast);
@@ -152,7 +152,10 @@ const store = {
   "car": args => args[0][0],
   "cdr": args => args[0].slice(1),
   "length": args => args[0].length,
-  "assoc": args => args[1].find(e => e[0] === args[0]),
+  "assoc": args => {
+    const pair = args[1].find(e => e[0] === args[0]);
+    return pair ? pair : [];
+  },
   "set": args => {
     store[args[0]] = args[1];
     return args[1];
@@ -209,13 +212,17 @@ const store = {
     return interpret_exp(args[args.length-1], env);
   },
   "slice": args => args[2].slice(args[0], args[1]),
+  "nth": args => args[1][args[0]],
   "flat-length": args => args[0].flat().length,
   "nil": [],
   "infer-type": args => parse_symbol(args[0]),
+  "type": args => typeof args[0],
   "is-list": args => Array.isArray(args[0]),
   // String functions
   "concat": args => args.reduce((str, arg) => str+arg, ""),
   "substring": args => args[2].substring(args[0], args[1]),
+  // "includes": args => args[0].includes(args[1]),
+  "replace": args => args[2].replace(args[0], args[1]),
   
 };
 

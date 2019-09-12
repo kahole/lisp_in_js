@@ -4,7 +4,7 @@
            "(" char
            " " ""
            ")" char
-           (match (car (cdr chars))
+           (match (nth 1 chars)
                   ")" char
                   " " char
                   (concat char (token (cdr chars)))
@@ -48,26 +48,42 @@
       nil
     (cons (call fun (car arr)) (map (cdr arr) fun))))
 
-(defun lookup (key)
-  (car (cdr (assoc key store)))
-  )
+(defun lookup (env key)
 
-(defun interpret-exp (ast env first)
+  (let (env-pair (assoc key env))
+    (if (eq? (length env-pair) 0)
+        (let (store-pair (assoc key store))
+          (if (eq? (length store-pair) 0)
+              (print (concat "Variable not bound: " key))
+            (nth 1 (assoc key store))
+            )
+          )
+      (nth 1 (assoc key env)))))
+
+(defun interpret-exp (ast env)
 
   (if (eq? (length ast) 0)
       nil
 
     (if (is-list ast)
-
         (match (car ast)
-               "if" (call (lookup (car ast)) (cons (interpret-exp (car (cdr ast)) env) (cdr (cdr ast))))
-               (call (lookup (car ast))
+               "if" (call (lookup env (car ast)) (cons (interpret-exp (nth 1 ast) env) (cdr (cdr ast))))
+               "match" (call (lookup env (car ast)) (cons (interpret-exp (nth 1 ast) env) (cdr (cdr ast))))
+               "let" (call (lookup env (car ast)) (cdr ast))
+               "lambda" (call (lookup env (car ast)) (cdr ast))
+               "defun" (call (lookup env (car ast)) (cdr ast))
+               (call (lookup env (car ast))
                      (map (cdr ast) (lambda (x) (interpret-exp x env)))
                      env))
-      ast
+
+      (if (eq? (type ast) "string")
+          (match true
+                 (eq? (substring 0 1 ast) "'") (replace "'" "" ast)
+                 (lookup env ast))
+        ast
+        )
       )
-    )
-  )
+    ))
 
 (defun interpret (ast env)
   (cons (interpret-exp (car ast) env)
@@ -77,16 +93,37 @@
 
 (set 'store
      (list
-      (list '+ (lambda (args) (+ (car args) (car (cdr args)))))
-      (list '- (lambda (args) (- (car args) (car (cdr args)))))
-      (list '* (lambda (args) (* (car args) (car (cdr args)))))
-      (list '/ (lambda (args) (/ (car args) (car (cdr args)))))
-      (list 'eq? (lambda (args) (eq? (car args) (car (cdr args)))))
-      (list 'if (lambda (args env) (if (car args) (interpret-exp (car (cdr args)) env)
-                                 (interpret-exp (car (cdr (cdr args))) env))))
+      (list '+ (lambda (args) (+ (car args) (nth 1 args))))
+      (list '- (lambda (args) (- (car args) (nth 1 args))))
+      (list '* (lambda (args) (* (car args) (nth 1 args))))
+      (list '/ (lambda (args) (/ (car args) (nth 1 args))))
+      (list 'eq? (lambda (args) (eq? (car args) (nth 1 args))))
+      (list 'if (lambda (args env) (if (car args)
+                                       (interpret-exp (nth 1 args) env)
+                                     (interpret-exp (nth 1 (cdr args)) env))))
+      (list 'not (lambda (args) (not (car args))))
+      (list 'set (lambda (args)
+                   (proc
+                    (set 'store (cons (list (car args) (nth 1 args)) store))
+                    (nth 1 args))))
+
+      (list 'let (lambda (args env)
+                   (let (key (car (car args)))
+                     (let (val (nth 1 (car args)))
+                       (interpret-exp (nth 1 args) (cons (list key val) env))
+                       ))
+                   ))
+      (list 'print (lambda (args) (print (car args))))
+      (list 'read (lambda (args) (read (car args))))
+      (list 'list (lambda (args) args))
+      (list 'length (lambda (args) (length (car args))))
+      (list 'cons (lambda (args) (cons (car args) (nth 1 args))))
+      (list 'car (lambda (args) (car (car args))))
+      (list 'cdr (lambda (args) (cdr (car args))))
+      (list 'nth (lambda (args) (nth (car args) (nth 1 args))))
       ))
 
 (defun repl (prev)
-  (repl (print (interpret (parse (tokenize (read "h2> "))) (list)))))
+  (repl (print (car (interpret (parse (tokenize (read "h2> "))) (list))))))
 
 (repl 'start)
