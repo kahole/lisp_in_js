@@ -102,10 +102,17 @@
                                        (interpret-exp (nth 1 args) env)
                                      (interpret-exp (nth 1 (cdr args)) env))))
       (list 'not (lambda (args) (not (car args))))
+      (list 'cons (lambda (args) (cons (car args) (nth 1 args))))
+      (list 'list (lambda (args) args))
+      (list 'car (lambda (args) (car (car args))))
+      (list 'cdr (lambda (args) (cdr (car args))))
+      (list 'length (lambda (args) (length (car args))))
+      (list 'assoc)
       (list 'set (lambda (args)
                    (proc
                     (set 'store (cons (list (car args) (nth 1 args)) store))
                     (nth 1 args))))
+      (list 'defun)
 
       (list 'let (lambda (args env)
                    (let (key (car (car args)))
@@ -113,14 +120,31 @@
                        (interpret-exp (nth 1 args) (cons (list key val) env))
                        ))
                    ))
+
+      (list "lambda" "call" "eval" "proc")
+
       (list 'print (lambda (args) (print (car args))))
+
+      (list 'req (lambda (args) (req (car args))))
+      (list 'json (lambda (args) (json (car args))))
       (list 'read (lambda (args) (read (car args))))
-      (list 'list (lambda (args) args))
-      (list 'length (lambda (args) (length (car args))))
-      (list 'cons (lambda (args) (cons (car args) (nth 1 args))))
-      (list 'car (lambda (args) (car (car args))))
-      (list 'cdr (lambda (args) (cdr (car args))))
+
+      (list 'match)
+
+      (list 'slice (lambda (args) (slice (car args) (nth 1 args) (nth 2 args))))
       (list 'nth (lambda (args) (nth (car args) (nth 1 args))))
+      (list 'flat-length (lambda (args) (flat-length (car args))))
+
+      (list 'nil (list))
+
+      (list 'infer-type (lambda (args) (infer-type (car args))))
+      (list 'type (lambda (args) (type (car args))))
+      (list 'is-list (lambda (args) (is-list (car args))))
+
+      (list 'concat (lambda (args) (concat (car args) (nth 1 args))))
+      (list 'substring (lambda (args) (substring (car args) (nth 1 args) (nth 2 args))))
+      (list 'replace (lambda (args) (replace (car args) (nth 1 args) (nth 2 args))))
+
       ))
 
 (defun repl (prev)
