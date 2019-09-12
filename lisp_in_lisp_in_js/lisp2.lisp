@@ -48,6 +48,11 @@
       nil
     (cons (call fun (car arr)) (map (cdr arr) fun))))
 
+(defun double-map (arr arr2 fun)
+  (if (eq? (length arr) 0)
+      nil
+    (cons (call fun (car arr) (car arr2)) (double-map (cdr arr) (cdr arr2) fun))))
+
 (defun lookup (env key)
 
   (let (env-pair (assoc key env))
@@ -69,9 +74,9 @@
         (match (car ast)
                "if" (call (lookup env (car ast)) (cons (interpret-exp (nth 1 ast) env) (cdr (cdr ast))))
                "match" (call (lookup env (car ast)) (cons (interpret-exp (nth 1 ast) env) (cdr (cdr ast))))
-               "let" (call (lookup env (car ast)) (cdr ast))
-               "lambda" (call (lookup env (car ast)) (cdr ast))
-               "defun" (call (lookup env (car ast)) (cdr ast))
+               "let" (call (lookup env (car ast)) (cdr ast) env)
+               "lambda" (call (lookup env (car ast)) (cdr ast) env)
+               "defun" (call (lookup env (car ast)) (cdr ast) env)
                (call (lookup env (car ast))
                      (map (cdr ast) (lambda (x) (interpret-exp x env)))
                      env))
@@ -107,12 +112,15 @@
       (list 'car (lambda (args) (car (car args))))
       (list 'cdr (lambda (args) (cdr (car args))))
       (list 'length (lambda (args) (length (car args))))
-      (list 'assoc)
+      (list 'assoc (lambda (args) (assoc (car args) (nth 1 args))))
       (list 'set (lambda (args)
                    (proc
                     (set 'store (cons (list (car args) (nth 1 args)) store))
                     (nth 1 args))))
-      (list 'defun)
+
+      (list 'defun (lambda (args env) (call (lookup env 'set)
+                                            (list (interpret-exp (car args) env)
+                                            (call (lookup env 'lambda) (cdr args) env)))))
 
       (list 'let (lambda (args env)
                    (let (key (car (car args)))
@@ -121,7 +129,15 @@
                        ))
                    ))
 
-      (list "lambda" "call" "eval" "proc")
+      (list 'lambda (lambda (args env)
+                      (lambda (lam-args)
+                        (let (lam-arg-bindings
+                              (double-map (car args) lam-args (lambda (key val)
+                                                                (list key val))))
+                          (interpret-exp (nth 1 args) (append lam-arg-bindings env))))))
+      (list 'call (lambda (args) (call (car args) (cdr args))))
+      (list 'eval (lambda (args) (eval (car args))))
+      (list 'proc (lambda (args) (nth (- (length args) 1) args)))
 
       (list 'print (lambda (args) (print (car args))))
 
@@ -132,6 +148,7 @@
       (list 'match)
 
       (list 'slice (lambda (args) (slice (car args) (nth 1 args) (nth 2 args))))
+      (list 'append (lambda (args) (append (car args) (nth 1 args))))
       (list 'nth (lambda (args) (nth (car args) (nth 1 args))))
       (list 'flat-length (lambda (args) (flat-length (car args))))
 
@@ -144,7 +161,6 @@
       (list 'concat (lambda (args) (concat (car args) (nth 1 args))))
       (list 'substring (lambda (args) (substring (car args) (nth 1 args) (nth 2 args))))
       (list 'replace (lambda (args) (replace (car args) (nth 1 args) (nth 2 args))))
-
       ))
 
 (defun repl (prev)

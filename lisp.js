@@ -212,6 +212,7 @@ const store = {
     return interpret_exp(args[args.length-1], env);
   },
   "slice": args => args[2].slice(args[0], args[1]),
+  "append": args => [...args[0], ...args[1]],
   "nth": args => args[1][args[0]],
   "flat-length": args => args[0].flat().length,
   "nil": [],
