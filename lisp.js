@@ -16,7 +16,8 @@ function tokenize(input) {
     return b;
   };
 
-  for (let c of input) {
+  for (let i = 0; i < input.length; i++){
+    const c = input[i];
 
     if (quote_level >= 1) {
       if (c === " " && quote_level <= 1) { //stop quoting if hit space char and below level 1 quoting
@@ -33,12 +34,14 @@ function tokenize(input) {
     }
 
     if (is_string_literal) {
-      if (c === "\"") {
-        if (lex_builder[lex_builder.length-1] !== "\\") {
+
+      if (c === "\\") {
+        lex_builder += input[++i];
+        continue;
+      }
+      
+      if (c === '"') {
           is_string_literal = false;
-        } else {
-          lex_builder[lex_builder.length-1] = "\"";
-        }
       }
       lex_builder += c;
       continue;
@@ -185,7 +188,7 @@ const store = {
   "call": args => args[0](args.splice(1)),
   "eval": (args, env) => interpret_exp(parse(tokenize(args[0]))[0], env),
   "proc": args => args[args.length-1],
-  "print": args => console.log(JSON.stringify(args[0])),
+  "print": args => JSON.stringify(console.log(args[0])),
   "req": args => {
     return fetch(args[0])
       .then(res => res.text());
