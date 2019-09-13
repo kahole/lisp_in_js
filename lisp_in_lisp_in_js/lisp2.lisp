@@ -1,6 +1,28 @@
+(defun token-quote (chars level)
+  (match (car chars)
+         "'" (concat (car chars) (token-quote (cdr chars) (+ level 0)))
+         "(" (concat (car chars) (token-quote (cdr chars) (+ level 1)))
+         " " (if (eq? level 0) "" (concat (car chars) (token-quote (cdr chars) level)))
+         ")" (if (eq? level 0) "" (concat (car chars) (token-quote (cdr chars) (- level 1))))
+         (concat (car chars) (token-quote (cdr chars) level))
+         )
+  )
+
+(defun token-string-literal (chars)
+
+  
+  (match (car chars)
+         "\"" (car chars)
+         "\\" (concat (nth 1 chars) (token-string-literal (cdr (cdr chars))))
+         (concat (car chars) (token-string-literal (cdr chars)))
+         )
+  )
+
 (defun token (chars)
   (let (char (car chars))
     (match char
+           "'" (concat "'" (token-quote (cdr chars) 0))
+           "\"" (concat "\"" (token-string-literal (cdr chars)))
            "(" char
            " " ""
            ")" char
@@ -72,8 +94,8 @@
 
     (if (is-list ast)
         (match (car ast)
-               "if" (call (lookup env (car ast)) (cons (interpret-exp (nth 1 ast) env) (cdr (cdr ast))))
-               "match" (call (lookup env (car ast)) (cons (interpret-exp (nth 1 ast) env) (cdr (cdr ast))))
+               "if" (call (lookup env (car ast)) (cons (interpret-exp (nth 1 ast) env) (cdr (cdr ast))) env)
+               "match" (call (lookup env (car ast)) (cons (interpret-exp (nth 1 ast) env) (cdr (cdr ast))) env)
                "let" (call (lookup env (car ast)) (cdr ast) env)
                "lambda" (call (lookup env (car ast)) (cdr ast) env)
                "defun" (call (lookup env (car ast)) (cdr ast) env)
@@ -96,6 +118,16 @@
         (if (eq? (length (cdr ast)) 0)
             nil
           (interpret (cdr ast) env))))
+
+(defun for-match (val clauses env)
+  (if (eq? (length clauses) 1)
+      (interpret-exp (car clauses) env)
+    (if (eq? val (interpret-exp (car clauses) env))
+        (interpret-exp (nth 1 clauses) env)
+      (for-match val (cdr clauses) env)
+      )
+    )
+  )
 
 (set 'store
      (list
@@ -137,7 +169,7 @@
                                                                 (list key val))))
                           (interpret-exp (nth 1 args) (append lam-arg-bindings env))))))
       (list 'call (lambda (args) (call (car args) (cdr args))))
-      (list 'eval (lambda (args) (eval (car args))))
+      (list 'eval (lambda (args env) (car (interpret (parse (tokenize (car args))) env))))
       (list 'proc (lambda (args) (nth (- (length args) 1) args)))
 
       (list 'print (lambda (args) (print (car args))))
@@ -146,7 +178,9 @@
       (list 'json (lambda (args) (json (car args))))
       (list 'read (lambda (args) (read (car args))))
 
-      (list 'match)
+      (list 'match (lambda (args env)
+                     (for-match (car args) (cdr args) env)
+                     ))
 
       (list 'slice (lambda (args) (slice (car args) (nth 1 args) (nth 2 args))))
       (list 'append (lambda (args) (append (car args) (nth 1 args))))
