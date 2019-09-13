@@ -8,12 +8,13 @@
          )
   )
 
+(set 'pruned 0)
+
 (defun token-string-literal (chars)
 
-  
   (match (car chars)
          "\"" (car chars)
-         "\\" (concat (nth 1 chars) (token-string-literal (cdr (cdr chars))))
+         "\\" (proc (set 'pruned (+ pruned 1)) (concat (nth 1 chars) (token-string-literal (cdr (cdr chars)))))
          (concat (car chars) (token-string-literal (cdr chars)))
          )
   )
@@ -22,7 +23,7 @@
   (let (char (car chars))
     (match char
            "'" (concat "'" (token-quote (cdr chars) 0))
-           "\"" (concat "\"" (token-string-literal (cdr chars)))
+           "\"" (proc (set 'pruned 0) (concat "\"" (token-string-literal (cdr chars))))
            "(" char
            " " ""
            ")" char
@@ -39,7 +40,7 @@
     (let (tok (token input))
       (if (eq? (length tok) 0)
           (tokenize (substring 1 (length input) input))
-        (cons tok (tokenize (substring (length tok) (length input) input)))
+        (cons tok (tokenize (substring (+ (length tok) pruned) (length input) input)))
         ))))
 
 (defun end-lex-exp-length (lexemes depth count)
@@ -152,7 +153,7 @@
                     (nth 1 args))))
 
       (list 'defun (lambda (args env) (call (lookup env 'set)
-                                            (list (interpret-exp (car args) env)
+                                            (list (car args) 
                                             (call (lookup env 'lambda) (cdr args) env)))))
 
       (list 'let (lambda (args env)
