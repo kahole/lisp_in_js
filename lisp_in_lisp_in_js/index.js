@@ -7,6 +7,6 @@ fs.readFile( __dirname + '/lisp2.lisp', function (err, data) {
   }
 
   run(data.toString())
-    .then(console.log)
+    .then(() => {})
     .catch(console.log)
 });

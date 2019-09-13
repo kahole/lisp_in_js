@@ -231,6 +231,7 @@ const store = {
   "substring": args => args[2].substring(args[0], args[1]),
   // "includes": args => args[0].includes(args[1]),
   "replace": args => args[2].replace(new RegExp(args[0], "g"), args[1]),
+  "sanitize": args => args[0].replace(/(\r\n|\n|\r)/gm, " "),
   
 };
 

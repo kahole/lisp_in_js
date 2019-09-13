@@ -34,6 +34,8 @@
                   ))))
 
 (defun tokenize (input)
+
+  (proc (set 'pruned 0)
   
   (if (eq? (length input) 0)
       nil
@@ -41,7 +43,7 @@
       (if (eq? (length tok) 0)
           (tokenize (substring 1 (length input) input))
         (cons tok (tokenize (substring (+ (length tok) pruned) (length input) input)))
-        ))))
+        )))))
 
 (defun end-lex-exp-length (lexemes depth count)
 
@@ -158,7 +160,7 @@
 
       (list 'let (lambda (args env)
                    (let (key (car (car args)))
-                     (let (val (nth 1 (car args)))
+                     (let (val (interpret-exp (nth 1 (car args)) env))
                        (interpret-exp (nth 1 args) (cons (list key val) env))
                        ))
                    ))
@@ -197,9 +199,14 @@
       (list 'concat (lambda (args) (concat (car args) (nth 1 args))))
       (list 'substring (lambda (args) (substring (car args) (nth 1 args) (nth 2 args))))
       (list 'replace (lambda (args) (replace (car args) (nth 1 args) (nth 2 args))))
+      (list 'sanitize (lambda (args) (sanitize (car args))))
       ))
 
-(defun repl (prev)
+(defun repl ()
   (repl (print (car (interpret (parse (tokenize (read "h2> "))) (list))))))
 
-(repl 'start)
+(defun run-program (path)
+  (interpret (parse (tokenize (sanitize (req path)))) (list)))
+
+
+(run-program "http://localhost:8080/lisp_in_lisp_in_js/lisp3.lisp")
