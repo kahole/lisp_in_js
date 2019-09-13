@@ -204,7 +204,10 @@
       ))
 
 (defun repl (prompt)
-  (repl prompt (print (car (interpret (parse (tokenize (read prompt))) (list))))))
+  (let (line (read prompt))
+    (if (eq? (length line) 0)
+        (repl prompt)
+      (repl prompt (print (car (interpret (parse (tokenize line)) (list))))))))
 
 (defun run-program (src)
   (interpret (parse (tokenize (sanitize src))) (list)))
