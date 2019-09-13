@@ -180,6 +180,7 @@
       (list 'req (lambda (args) (req (car args))))
       (list 'json (lambda (args) (json (car args))))
       (list 'read (lambda (args) (read (car args))))
+      (list 'file (lambda (args) (file (car args))))
 
       (list 'match (lambda (args env)
                      (for-match (car args) (cdr args) env)
@@ -202,11 +203,8 @@
       (list 'sanitize (lambda (args) (sanitize (car args))))
       ))
 
-(defun repl ()
-  (repl (print (car (interpret (parse (tokenize (read "h2> "))) (list))))))
+(defun repl (prompt)
+  (repl prompt (print (car (interpret (parse (tokenize (read prompt))) (list))))))
 
-(defun run-program (path)
-  (interpret (parse (tokenize (sanitize (req path)))) (list)))
-
-
-(run-program "http://localhost:8080/lisp_in_lisp_in_js/lisp3.lisp")
+(defun run-program (src)
+  (interpret (parse (tokenize (sanitize src))) (list)))

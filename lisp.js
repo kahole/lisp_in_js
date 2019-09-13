@@ -1,6 +1,7 @@
 const { match, op } = require("egna");
 const fetch = require('node-fetch');
 const readline = require('readline');
+const fs = require('fs');
 
 function tokenize(input) {
   input = input.replace(/(\r\n|\n|\r)/gm, " "); // make all whitespace space characters
@@ -197,18 +198,19 @@ const store = {
     const obj = JSON.parse(args[0]);
     return Object.keys(obj).map(k => [k, obj[k]]);
   },
-  "read": (prompt) => {
+  "read": args => {
     return new Promise((resolve, reject) => {
       const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout
       });
-      rl.question(prompt, (answer) => {
+      rl.question(args[0], (answer) => {
         resolve(answer);
         rl.close();
       });
     });
   },
+  "file": args => fs.readFileSync(args[0], 'utf8'),
   "match": async (args, env) => {
     const val = args[0];
     for (let i = 1; i < args.length-2; i+=2) {

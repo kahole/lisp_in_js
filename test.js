@@ -40,6 +40,10 @@ const program = `
 (set 'rec (lambda (x y) (if (eq? x 0) (+ y 0) (rec (- x 1) (+ y x)))))
 
 (rec 5 0)
+
+(defun add-hello (str) (concat str "hello"))
+
+(add-hello "test")
 `;
 
 async function runTests() {
@@ -50,7 +54,7 @@ async function runTests() {
   } catch (e) {
     console.log(e);
   }
-  const expected = [71, "hallo", 222, 222, "function", 5, 88, "hallo", "eple", 9, 10, "function", 36, 4356, true, 5, "function", 15];
+  const expected = [71, "hallo", 222, 222, "function", 5, 88, "hallo", "eple", 9, 10, "function", 36, 4356, true, 5, "function", 15, "function", "testhello"];
 
   let passed = true;
   let fails = [];

@@ -106,10 +106,11 @@ console.log(run(program));
 
 ### Roadmap <a name="roadmap"></a>
 
-- Datastructure around types
-- Lisp-in-lisp-in-js
-- Concurrency, forking interpreter
+- Quoted lists?
+  - Assoc lists?
 - proper cons-cells (?)
+- Datastructure around types ?
 - Macros
 - Tail-call optimization
+- Concurrency, forking interpreter
 - Docs for all functions
