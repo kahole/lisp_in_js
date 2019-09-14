@@ -107,6 +107,9 @@ console.log(run(program));
 
 ### Lisp-in-lisp-in-js <a name="lisp2"></a>
 
+Interesting case with `map`. Not builtin to either interpreter, Lives in store of level-1 interpreter, meaning it's a variable in level.
+Could be interesting having it as a builtin in only lisp2.
+
 ### Roadmap <a name="roadmap"></a>
 
 - Quoted lists (?)
