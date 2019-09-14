@@ -127,7 +127,7 @@
       (interpret-exp (car clauses) env)
     (if (eq? val (interpret-exp (car clauses) env))
         (interpret-exp (nth 1 clauses) env)
-      (for-match val (cdr clauses) env)
+      (for-match val (cdr (cdr clauses)) env)
       )
     )
   )
