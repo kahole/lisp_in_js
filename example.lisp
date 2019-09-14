@@ -34,8 +34,12 @@
 
 (eval '(eq? '111 '111))
 
-(cdr (assoc 'a (list (list 'b 9) (list 'a 5))))
+(car (cdr (assoc 'a (list (list 'b 9) (list 'a 5)))))
 
 (set 'rec (lambda (x y) (if (eq? x 0) (+ y 0) (rec (- x 1) (+ y x)))))
 
 (rec 5 0)
+
+(defun add-hello (str) (concat str "hello"))
+
+(add-hello "test")
