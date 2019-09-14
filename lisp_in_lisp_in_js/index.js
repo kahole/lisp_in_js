@@ -14,6 +14,9 @@ fs.readFile(interpreter_path, function (err, data) {
 
   const repl_instance = interpreter_src + ` (repl "h2> ")`;
 
+  // TODO: generate levels
+  // and implement lift and whatever, to move between repls.. every lisp-lisp interpreter should have a repl at least
+
   run(interpreter_src
       + ` (run-program (concat (file "${interpreter_path}") "(repl \\\"h3> \\\")"))`)
   // run(repl_instance)
