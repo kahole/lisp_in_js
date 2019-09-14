@@ -110,6 +110,9 @@ console.log(run(program));
 Interesting case with `map`. Not builtin to either interpreter, Lives in store of level-1 interpreter, meaning it's a variable in level.
 Could be interesting having it as a builtin in only lisp2.
 
+- Implement lift and sink(?)
+Can manipulate the interpreter while its running. Going up a level the language will have changed.
+
 ### Roadmap <a name="roadmap"></a>
 
 - Quoted lists (?)
