@@ -188,7 +188,7 @@ const store = {
   },
   "call": args => args[0](args.splice(1)),
   "eval": (args, env) => interpret_exp(parse(tokenize(args[0]))[0], env),
-  "proc": args => args[args.length-1],
+  "progn": args => args[args.length-1],
   "print": args => JSON.stringify(console.log(args[0])),
   "req": args => {
     return fetch(args[0])

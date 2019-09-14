@@ -14,7 +14,7 @@
 
   (match (car chars)
          "\"" (car chars)
-         "\\" (proc (set 'pruned (+ pruned 1)) (concat (nth 1 chars) (token-string-literal (cdr (cdr chars)))))
+         "\\" (progn (set 'pruned (+ pruned 1)) (concat (nth 1 chars) (token-string-literal (cdr (cdr chars)))))
          (concat (car chars) (token-string-literal (cdr chars)))
          )
   )
@@ -23,7 +23,7 @@
   (let (char (car chars))
     (match char
            "'" (concat "'" (token-quote (cdr chars) 0))
-           "\"" (proc (set 'pruned 0) (concat "\"" (token-string-literal (cdr chars))))
+           "\"" (progn (set 'pruned 0) (concat "\"" (token-string-literal (cdr chars))))
            "(" char
            " " ""
            ")" char
@@ -35,7 +35,7 @@
 
 (defun tokenize (input)
 
-  (proc (set 'pruned 0)
+  (progn (set 'pruned 0)
   
   (if (eq? (length input) 0)
       nil
@@ -150,7 +150,7 @@
       (list 'length (lambda (args) (length (car args))))
       (list 'assoc (lambda (args) (assoc (car args) (nth 1 args))))
       (list 'set (lambda (args)
-                   (proc
+                   (progn
                     (set 'store (cons (list (car args) (nth 1 args)) store))
                     (nth 1 args))))
 
@@ -173,7 +173,7 @@
                           (interpret-exp (nth 1 args) (append lam-arg-bindings env))))))
       (list 'call (lambda (args) (call (car args) (cdr args))))
       (list 'eval (lambda (args env) (car (interpret (parse (tokenize (car args))) env))))
-      (list 'proc (lambda (args) (nth (- (length args) 1) args)))
+      (list 'progn (lambda (args) (nth (- (length args) 1) args)))
 
       (list 'print (lambda (args) (print (car args))))
 

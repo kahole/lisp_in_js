@@ -4,7 +4,8 @@ Lisp interpreter in Javascript
 1. [REPL](#repl)
 2. [Library](#lib)
 3. [Built-ins list](#builtins)
-4. [Roadmap](#roadmap)
+4. [Lisp-in-lisp-in-js](#lisp2)
+5. [Roadmap](#roadmap)
 
 #### REPL <a name="repl"></a>
 Running repl.js gives you a lisp prompt:
@@ -104,14 +105,15 @@ console.log(run(program));
 | `req`    |   |
 | `json`   |   |
 
+### Lisp-in-lisp-in-js <a name="lisp2"></a>
+
 ### Roadmap <a name="roadmap"></a>
 
-- proc -> progn
-- Quoted lists?
-  - Assoc lists?
+- Quoted lists (?)
+  - Assoc lists
 - proper cons-cells (?)
-- Datastructure around types ?
 - Macros
+- Datastructure around types (?)
 - Tail-call optimization
 - Concurrency, forking interpreter
 - Docs for all functions
