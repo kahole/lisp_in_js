@@ -20,18 +20,20 @@
   )
 
 (defun token (chars)
-  (let (char (car chars))
-    (match char
-           "'" (concat "'" (token-quote (cdr chars) 0))
-           "\"" (progn (set 'pruned 0) (concat "\"" (token-string-literal (cdr chars))))
-           "(" char
-           " " ""
-           ")" char
-           (match (nth 1 chars)
-                  ")" char
-                  " " char
-                  (concat char (token (cdr chars)))
-                  ))))
+  (if (eq? (length chars) 0)
+      ""
+    (let (char (car chars))
+      (match char
+             "'" (concat "'" (token-quote (cdr chars) 0))
+             "\"" (progn (set 'pruned 0) (concat "\"" (token-string-literal (cdr chars))))
+             "(" char
+             " " ""
+             ")" char
+             (match (nth 1 chars)
+                    ")" char
+                    " " char
+                    (concat char (token (cdr chars)))
+                    )))))
 
 (defun tokenize (input)
 
