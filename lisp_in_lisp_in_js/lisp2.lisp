@@ -80,6 +80,21 @@
       nil
     (cons (call fun (car arr) (car arr2)) (double-map (cdr arr) (cdr arr2) fun))))
 
+(defun for-match (val clauses env)
+  (if (eq? (length clauses) 1)
+      (interpret-exp (car clauses) env)
+    (if (eq? val (interpret-exp (car clauses) env))
+        (interpret-exp (nth 1 clauses) env)
+      (for-match val (cdr (cdr clauses)) env)
+      )
+    )
+  )
+
+(defun reduce (list acc fun)
+  (if (eq? (length list) 0)
+      acc
+      (reduce (cdr list) (fun acc (car list)) fun)))
+
 (defun lookup (env key)
 
   (let (env-pair (assoc key env))
@@ -124,16 +139,6 @@
         (if (eq? (length (cdr ast)) 0)
             nil
           (interpret (cdr ast) env))))
-
-(defun for-match (val clauses env)
-  (if (eq? (length clauses) 1)
-      (interpret-exp (car clauses) env)
-    (if (eq? val (interpret-exp (car clauses) env))
-        (interpret-exp (nth 1 clauses) env)
-      (for-match val (cdr (cdr clauses)) env)
-      )
-    )
-  )
 
 (set 'store
      (list
@@ -202,7 +207,8 @@
       (list 'type (lambda (args) (type (car args))))
       (list 'is-list (lambda (args) (is-list (car args))))
 
-      (list 'concat (lambda (args) (concat (car args) (nth 1 args))))
+      ;; (list 'concat (lambda (args) (concat (car args) (nth 1 args))))
+      (list 'concat (lambda (args) (reduce args "" concat)))
       (list 'substring (lambda (args) (substring (car args) (nth 1 args) (nth 2 args))))
       (list 'replace (lambda (args) (replace (car args) (nth 1 args) (nth 2 args))))
       (list 'sanitize (lambda (args) (sanitize (car args))))
@@ -240,3 +246,16 @@
 ;; Execute meta - Call eval from emulated store to execute in interpreter above.
 (defun em (exp)
   (call (lookup (list) 'eval) (list exp) (list)))
+
+(defun init-tower (level max-level)
+  ;; Load next interpreter
+  (progn
+    (print level)
+    (print max-level)
+    (if (< level max-level)
+        (run-program
+         (concat (file "/Users/khol/privat/lisp_in_js/lisp_in_lisp_in_js/lisp2.lisp") " (init-tower " (+ level 1) " " max-level ")"))
+      nil)
+    (tower-repl (concat "lisp-" level "> "))
+    )
+  )
