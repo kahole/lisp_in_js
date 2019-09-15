@@ -160,6 +160,8 @@ const store = {
   "*": args => args.reduce((sum, arg) => sum*arg, 1),
   "/": args => args.splice(1).reduce((sum, arg) => sum/arg, args[0]),
   "eq?": args => args[0] === args[1],
+  "<": args => args[0] < args[1],
+  ">": args => args[0] > args[1],
   "if": (args, env) => args[0] ? interpret_exp(args[1], env) : interpret_exp(args[2], env),
   "not": args => !args[0],
   "cons": args => (args[1] ? [args[0], ...args[1]] : [args[0]]),

@@ -142,6 +142,8 @@
       (list '* (lambda (args) (* (car args) (nth 1 args))))
       (list '/ (lambda (args) (/ (car args) (nth 1 args))))
       (list 'eq? (lambda (args) (eq? (car args) (nth 1 args))))
+      (list '< (lambda (args) (< (car args) (nth 1 args))))
+      (list '> (lambda (args) (> (car args) (nth 1 args))))
       (list 'if (lambda (args env) (if (car args)
                                        (interpret-exp (nth 1 args) env)
                                      (interpret-exp (nth 1 (cdr args)) env))))
