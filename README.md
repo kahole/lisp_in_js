@@ -107,20 +107,20 @@ console.log(run(program));
 
 ### Lisp-in-lisp-in-js <a name="lisp2"></a>
 
+Can manipulate the interpreter while its running. Going up a level the language will have changed.
+
 Interesting case with `map`. Not builtin to either interpreter, Lives in store of level-1 interpreter, meaning it's a variable in level.
 Could be interesting having it as a builtin in only lisp2.
 
-- Implement execute-meta (em) and old-cont
-Can manipulate the interpreter while its running. Going up a level the language will have changed.
 
 ### Roadmap <a name="roadmap"></a>
 
+- Optimization
+  - Tail-call optimization
 - Quoted lists (?)
   - Assoc lists
 - proper cons-cells (?)
 - Macros
 - Datastructure around types (?)
-- Optimization
-  - Tail-call optimization
 - Concurrency, forking interpreter
 - Docs for all functions
