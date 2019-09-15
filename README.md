@@ -120,6 +120,7 @@ Can manipulate the interpreter while its running. Going up a level the language 
 - proper cons-cells (?)
 - Macros
 - Datastructure around types (?)
-- Tail-call optimization
+- Optimization
+  - Tail-call optimization
 - Concurrency, forking interpreter
 - Docs for all functions
