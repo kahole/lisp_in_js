@@ -9,5 +9,5 @@ Functions for using the tower:
 
 | Function |   |
 |----------|---|
-| `em`      | `(em QUOTATION)` Meta-execution. Executes quoted code on the interpreter level above. |
+| `em`      | `(em QUOTATION)` Execute-meta. Executes quoted code on the interpreter level above. |
 | `old-cont`      | `(old-cont QUOTATION)` Executes quoted code on the interpreter level below. And continues execution at that level. |
