@@ -63,6 +63,10 @@ function tokenize(input) {
       c => { lex_builder += c; }
     )(c);
   }
+
+  if (lex_builder.length > 0)
+    lexemes.push(pop_lex_builder());
+  
   return lexemes;
 }
 
