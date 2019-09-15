@@ -23,106 +23,81 @@ const program = `
 
 const interpret_string = async str => (await interpret(parse(tokenize(str)), {}))[0];
 
-test("Set global variable x", async t => {
-  const expected = 1;
-  const value = interpret_string("(set 'x 1)");
+// Load lisp-in-lisp-in-js interpreter
+
+const interpreter_path = __dirname + '/lisp_in_lisp_in_js/lisp2.lisp';
+const interpreter_src = fs.readFileSync(interpreter_path).toString();
+
+const lisp2_interpret_string = async str => {
+  const results = await run(interpreter_src + ` (run-program ` + `"` + str + `"` + `)`);
+  return results[results.length - 1][0];
+};
+
+const lisp2_run = async str => {
+  const results = await run(interpreter_src + ` (run-program ` + `"` + str + `"` + `)`);
+  return results[results.length - 1];
+};
+
+
+async function macro(t, interpret_func, input, expected) {
+  const value = interpret_func(input);
   t.is(await value, expected);
-});
+}
 
-test("Nested eval of quoted expressions", async t => {
-  const expected = 222;
-  const value = interpret_string("(eval '(+ 112 (eval '(+ 55 55))))");
-  t.is(await value, expected);
-});
+macro.title = (providedTitle = '') => `${providedTitle}`.trim();
 
-test("Set lambda to variable and call in progn expressions", async t => {
-  const expected = 5;
-  const value = interpret_string("(progn (set 'reverse_div (lambda (x y) (/ y x))) (reverse_div 2 10))");
-  t.is(await value, expected);
-});
 
-test("Lambda with double use of variable x", async t => {
-  const expected = 25;
-  const value = interpret_string("(progn (set 'pot (lambda (x) (* x x))) (pot 5))");
-  t.is(await value, expected);
-});
 
-test("Recursive lambda", async t => {
-  const expected = 15;
-  const value = interpret_string("(progn (set 'rec (lambda (x y) (if (eq? x 0) (+ y 0) (rec (- x 1) (+ y x))))) (rec 5 0))");
-  t.is(await value, expected);
-});
+[{ interpret_func: interpret_string, qualifier: "Lisp-0> "},
+ { interpret_func: lisp2_interpret_string, qualifier: "Lisp-1> "}]
+  .forEach(({interpret_func, qualifier}) => {
+   
+   // Tests
 
-test("Directly call lambda expression using call function", async t => {
-  const expected = 88;
-  const value = interpret_string("(call (lambda (x y) (* y x)) 2 44)");
-  t.is(await value, expected);
-});
+   test(qualifier + "Set global variable x", macro, interpret_func, "(set 'x 1)", 1);
 
-test("If expression with not", async t => {
-  const expected = "eple";
-  const value = interpret_string("(if (not (eq? (+ (/ 10 2) 20) 45)) 'eple x)");
-  t.is(await value, expected);
-});
+   test(qualifier + "Nested eval of quoted expressions", macro, interpret_func, "(eval '(+ 112 (eval '(+ 55 55))))", 222);
 
-test("Let expression with addition", async t => {
-  const expected = 9;
-  const value = interpret_string("(let (k 3) (+ k 6))");
-  t.is(await value, expected);
-});
+   test(qualifier + "Set lambda to variable and call in progn expressions", macro, interpret_string, "(progn (set 'reverse_div (lambda (x y) (/ y x))) (reverse_div 2 10))", 5);
 
-test("Nested let expression with addition", async t => {
-  const expected = 10;
-  const value = interpret_string("(let (k 3) (let (m 7) (+ k m)))");
-  t.is(await value, expected);
-});
+   test(qualifier + "Lambda with double use of variable x", macro, interpret_func, "(progn (set 'pot (lambda (x) (* x x))) (pot 5))", 25);
 
-test("Defun and call function with strings", async t => {
-  const expected = "testhello";
-  const value = interpret_string(`(progn (defun add-hello (str) (concat str "hello")) (add-hello "test"))`);
-  t.is(await value, expected);
-});
+   test(qualifier + "Recursive lambda", macro, interpret_func, "(progn (set 'rec (lambda (x y) (if (eq? x 0) (+ y 0) (rec (- x 1) (+ y x))))) (rec 5 0))", 15);
 
-// Full program
+   test(qualifier + "Directly call lambda expression using call function", macro, interpret_func, "(call (lambda (x y) (* y x)) 2 44)", 88);
 
-test("Running mutli-line program", async t => {
+   test(qualifier + "If expression with not", macro, interpret_func, "(if (not (eq? (+ (/ 10 2) 20) 45)) 'eple x)", "eple");
+
+   test(qualifier + "Let expression with addition", macro, interpret_func, "(let (k 3) (+ k 6))", 9);
+
+   test(qualifier + "Nested let expression with addition", macro, interpret_func, "(let (k 3) (let (m 7) (+ k m)))", 10);
+
+   test(qualifier + "Defun and call function with strings", macro, interpret_func, `(progn (defun add-hello (str) (concat str "hello")) (add-hello "test"))`, "testhello");
+
+
+ });
+
+
+test("Lisp-0> " + "String double-quote", macro, interpret_string, `(concat "\\\"" "\\\"")`, `""`);
+
+
+// const strs = '\\"\\\\\\"\\" \\"\\\\\\"\\"';
+
+// test("Lisp-1> " + "String double-quote", macro, lisp2_interpret_string, `(concat ${strs})`, `""`);
+
+// test(qualifier + "Heavy string escape slash and double-quote", macro, interpret_func, `(concat "\"\\\"" "\\\"\\")`, "\"\\\"\\\"\\");
+
+// Lisp1 - Full program
+
+test("Lisp-0> Running mutli-line program", async t => {
   const expected = "testhello";
   const value = (await run(program))[5];
   t.is(value, expected);
 });
 
-
-// LISP IN LISP IN JS INTERPRETER TESTS
-
-
-let lisp2_interpret_string;
-
-test.before(async t => {
-
-  return new Promise((resolve) => {
-    
-    const interpreter_path = __dirname + '/lisp_in_lisp_in_js/lisp2.lisp';
-    fs.readFile(interpreter_path, function (err, data) {
-      if (err) {
-        throw err; 
-      }
-
-      const interpreter_src = data.toString();
-
-      lisp2_interpret_string = async str => {
-        const results = await run(interpreter_src + ` (run-program ` + `"` + str + `"` + `)`);
-        return results[results.length - 1][0];
-      };
-      resolve();
-    });
-  });
+// Lisp2 - Full program
+test("Lisp-1> Running mutli-line program", async t => {
+  const expected = "testhello";
+  const value = (await lisp2_run(program))[5];
+  t.is(value, expected);
 });
-
-
-test("LISP2: Set global variable x", async t => {
-  const expected = 1;
-  const value = lisp2_interpret_string("(set 'x 1)");
-  t.is(await value, expected);
-});
-
-// TODO: finn smartere måte å kjøre de samme testene 
