@@ -3,8 +3,11 @@ const fetch = require('node-fetch');
 const readline = require('readline');
 const fs = require('fs');
 
+function sanitize(input) {
+  return input.replace(/;.*/g, " ").replace(/(\r\n|\n|\r)/gm, " ");
+}
+
 function tokenize(input) {
-  input = input.replace(/(\r\n|\n|\r)/gm, " "); // make all whitespace space characters
 
   const lexemes = [];
   let lex_builder = "";
@@ -237,7 +240,7 @@ const store = {
   "substring": args => args[2].substring(args[0], args[1]),
   // "includes": args => args[0].includes(args[1]),
   "replace": args => args[2].replace(new RegExp(args[0], "g"), args[1]),
-  "sanitize": args => args[0].replace(/(\r\n|\n|\r)/gm, " "),
+  "sanitize": args => sanitize(args[0]),
   
 };
 
@@ -245,5 +248,5 @@ module.exports = {
   tokenize,
   parse,
   interpret,
-  run: src => interpret(parse(tokenize(src)), {})
+  run: src => interpret(parse(tokenize(sanitize(src))), {})
 };
