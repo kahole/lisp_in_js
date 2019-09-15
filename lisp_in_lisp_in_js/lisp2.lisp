@@ -98,15 +98,16 @@
       nil
 
     (if (is-list ast)
-        (match (car ast)
-               "if" (call (lookup env (car ast)) (cons (interpret-exp (nth 1 ast) env) (cdr (cdr ast))) env)
-               "match" (call (lookup env (car ast)) (cons (interpret-exp (nth 1 ast) env) (cdr (cdr ast))) env)
-               "let" (call (lookup env (car ast)) (cdr ast) env)
-               "lambda" (call (lookup env (car ast)) (cdr ast) env)
-               "defun" (call (lookup env (car ast)) (cdr ast) env)
-               (call (lookup env (car ast))
-                     (map (cdr ast) (lambda (x) (interpret-exp x env)))
-                     env))
+        (let (proc (lookup env (car ast)))
+          (match (car ast)
+                 "if" (call proc (cons (interpret-exp (nth 1 ast) env) (cdr (cdr ast))) env)
+                 "match" (call proc (cons (interpret-exp (nth 1 ast) env) (cdr (cdr ast))) env)
+                 "let" (call proc (cdr ast) env)
+                 "lambda" (call proc (cdr ast) env)
+                 "defun" (call proc (cdr ast) env)
+                 (call proc
+                       (map (cdr ast) (lambda (x) (interpret-exp x env)))
+                       env)))
 
       (if (eq? (type ast) "string")
           (match true
@@ -206,10 +207,34 @@
       ))
 
 (defun repl (prompt)
-  (let (line (read prompt))
-    (if (eq? (length line) 0)
-        (repl prompt)
-      (repl prompt (print (car (interpret (parse (tokenize line)) (list))))))))
+    (let (line (read prompt))
+      (if (eq? (length line) 0)
+          (repl prompt)
+        (repl prompt (print (car (interpret (parse (tokenize line)) (list))))))))
 
 (defun run-program (src)
   (interpret (parse (tokenize (sanitize src))) (list)))
+
+
+;; Towers
+
+(set 'store (cons 
+             (list 'old-cont (lambda (args) (progn (set 'abort-repl true) (set 'contd-value (eval (car args))) nil)))
+             store))
+
+(defun tower-repl (prompt)
+  (if abort-repl
+      (progn
+        (set 'abort-repl false)
+        contd-value)
+    (let (line (read prompt))
+      (if (eq? (length line) 0)
+          (tower-repl prompt)
+        (tower-repl prompt (print (car (interpret (parse (tokenize line)) (list)))))))))
+
+;; old-cont
+(set 'abort-repl false)
+
+;; Execute meta - Call eval from emulated store to execute in interpreter above.
+(defun em (exp)
+  (call (lookup (list) 'eval) (list exp) (list)))
