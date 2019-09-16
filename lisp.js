@@ -198,7 +198,7 @@ const store = {
   "call": args => args[0](args.splice(1)),
   "eval": (args, env) => interpret_exp(parse(tokenize(args[0]))[0], env),
   "progn": args => args[args.length-1],
-  "print": args => JSON.stringify(console.log(args[0])),
+  "print": args => console.log(args[0]),
   "req": args => {
     return fetch(args[0])
       .then(res => res.text());
@@ -207,18 +207,7 @@ const store = {
     const obj = JSON.parse(args[0]);
     return Object.keys(obj).map(k => [k, obj[k]]);
   },
-  "read": args => {
-    return new Promise((resolve, reject) => {
-      const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-      });
-      rl.question(args[0], (answer) => {
-        resolve(answer);
-        rl.close();
-      });
-    });
-  },
+  "read": args => readNext(args[0]),
   "file": args => fs.readFileSync(args[0], 'utf8'),
   "match": async (args, env) => {
     const val = args[0];
@@ -245,6 +234,46 @@ const store = {
   "sanitize": args => sanitize(args[0]),
   
 };
+
+// Read write stream
+
+// const completes = Object.keys(store);
+
+// function completer(linePartial, callback) {
+//   const hits = completes.filter((c) => c.startsWith(linePartial));
+//   callback(null, [hits, linePartial]);
+// }
+
+const rl = readline.createInterface(process.stdin, process.stdout).on("close", () => {
+  console.log("\nkbye!");
+  process.exit(0);
+});
+
+function readNext(prompt) {
+  return new Promise( resolve => {
+    rl.setPrompt(prompt);
+    rl.removeAllListeners("line");
+    rl.prompt();
+    rl.on("line", line => {
+      if (line.length === 0) {
+        resolve("");
+      } else {
+        resolve(line);
+      }
+    });
+  });
+}
+
+async function repl() {
+  const line = await readNext("h> ");
+  if (line)
+    console.log((await interpret(parse(tokenize(line)), {}))[0]);
+  repl();
+}
+
+if (require.main === module) {
+  repl();
+}
 
 module.exports = {
   tokenize,
