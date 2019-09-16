@@ -235,7 +235,8 @@ const store = {
   // Dictionaries, replacement for proper assoc list implementation
   "dict": args => args.reduce( (acc, [key, value]) => { acc[key] = value; return acc; }, {}),
   "put-dict": args => Object.assign({[args[0][0]]: args[0][1]}, args[1]),
-  "put-list-dict": args => Object.assign(args[0].reduce( (acc, [key, val]) => Object.assign(acc, {[key]: val}), {}), args[1]),
+  "merge-dict": args => Object.assign(Object.assign({}, args[0]), args[1]),
+  "assoc-to-dict": args => args[0].reduce( (acc, [key, value]) => { acc[key] = value; return acc; }, {}),
   "get-dict": args => args[1][args[0]] ? ([args[0], args[1][args[0]]]) : [],
 };
 

@@ -97,6 +97,8 @@
 
 (defun lookup (env key)
 
+  (progn
+    (print store)
   (let (env-pair (get-dict key env))
     (if (eq? (length env-pair) 0)
         (let (store-pair (get-dict key store))
@@ -105,7 +107,7 @@
             (nth 1 store-pair)
             )
           )
-      (nth 1 env-pair))))
+      (nth 1 env-pair)))))
 
 (defun interpret-exp (ast env)
 
@@ -181,7 +183,7 @@
                         (let (lam-arg-bindings
                               (double-map (car args) lam-args (lambda (key val)
                                                                 (list key val))))
-                          (interpret-exp (nth 1 args) (put-list-dict lam-arg-bindings env))))))
+                          (interpret-exp (nth 1 args) (merge-dict (assoc-to-dict lam-arg-bindings) env))))))
       (list 'call (lambda (args) (call (car args) (cdr args))))
       (list 'eval (lambda (args env) (car (interpret (parse (tokenize (car args))) env))))
       (list 'progn (lambda (args) (nth (- (length args) 1) args)))
@@ -216,6 +218,10 @@
       ;; Dictionaries
       
       (list 'dict (lambda (args) (dict args)))
+      (list 'put-dict (lambda (args) (put-dict (car args) (nth 1 args))))
+      (list 'merge-dict (lambda (args) (merge-dict (car args) (nth 1 args))))
+      (list 'assoc-to-dict (lambda (args) (assoc-to-dict (car args) (nth 1 args))))
+      (list 'get-dict (lambda (args) (get-dict (car args) (nth 1 args))))
       ))
 
 (defun repl (prompt)
