@@ -15,10 +15,6 @@ $ node repl
 
 h> (if (not (eq? (+ (* 10 2) 20) 400)) 'apple 'orange)
 apple
-h> (set 'pow2 (lambda (x) (* x x)))
-[Function]
-h> (pow2 5)
-25
 h> (let (k 3) (+ k 6))
 9
 h> (call (lambda (x y) (* y x)) 2 44)
@@ -41,7 +37,6 @@ Using `run` function to execute a program:
 const { run } = require("./lisp.js");
 
 const program = `
-
 (defun do-request (url)
     (print (cdr (assoc 'title (json (req url))))))
 
