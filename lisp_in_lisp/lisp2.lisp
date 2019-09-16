@@ -101,7 +101,7 @@
     (if (eq? (length env-pair) 0)
         (let (store-pair (get-dict key store))
           (if (eq? (length store-pair) 0)
-              (print (concat "Variable not bound: " key))
+              (throw (concat "Variable not bound: " key))
             (nth 1 store-pair)
             )
           )
@@ -162,7 +162,7 @@
        (list 'assoc (lambda (args) (assoc (car args) (nth 1 args))))
        (list 'set (lambda (args)
                     (progn
-                      (set 'store (put-dict (list (car args) (nth 1 args)) store))
+                      (set 'store (put-dict args store))
                       (nth 1 args))))
 
        ;; Unecessarily complicated way of setting variable in the store , can directly set store instead
@@ -222,6 +222,9 @@
        (list 'assoc-to-dict (lambda (args) (assoc-to-dict (car args) (nth 1 args))))
        (list 'get-dict (lambda (args) (get-dict (car args) (nth 1 args))))
        (list 'nil-dict (lambda (args) (nil-dict)))
+
+       (list 'map map)
+       (list 'throw (lambda (args) (throw (car args))))
        )))
 
 (defun repl (prompt)
@@ -262,7 +265,7 @@
   (progn
     (if (< level max-level)
         (run-program
-         (concat (file "/Users/khol/privat/lisp_in_js/lisp_in_lisp/lisp2.lisp") " (init-tower " (+ level 1) " " max-level ")"))
+         (concat (file "lisp2.lisp") " (init-tower " (+ level 1) " " max-level ")"))
       nil)
     (tower-repl (concat "lisp-" level "> "))
     )
