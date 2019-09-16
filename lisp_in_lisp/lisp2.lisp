@@ -102,10 +102,10 @@
         (let (store-pair (assoc key store))
           (if (eq? (length store-pair) 0)
               (print (concat "Variable not bound: " key))
-            (nth 1 (assoc key store))
+            (nth 1 store-pair)
             )
           )
-      (nth 1 (assoc key env)))))
+      (nth 1 env-pair))))
 
 (defun interpret-exp (ast env)
 

@@ -100,6 +100,7 @@ Could be interesting having it as a builtin in only lisp2.
 ### Roadmap <a name="roadmap"></a>
 
 - Optimization
+  - Using assoc list for store and env is terrible for performance
   - Tail-call optimization
 - Quoted lists (?)
   - Assoc lists
