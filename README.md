@@ -13,11 +13,7 @@ Running repl.js gives you a lisp prompt:
 ```lisp
 $ node repl
 
-h> (+ 2 3)
-5
-h> (set 'var 'apple)
-apple
-h> (if (not (eq? (+ (* 10 2) 20) 400)) var 'orange)
+h> (if (not (eq? (+ (* 10 2) 20) 400)) 'apple 'orange)
 apple
 h> (set 'pow2 (lambda (x) (* x x)))
 [Function]
@@ -27,11 +23,6 @@ h> (let (k 3) (+ k 6))
 9
 h> (call (lambda (x y) (* y x)) 2 44)
 88
-h> (set 'x (list (list 'a 5)))
-[ [ 'a', 5 ] ]
-h> (cdr (assoc 'a x))
-5
-h>
 h> (print (cdr (assoc 'title (json (req 'https://jsonplaceholder.typicode.com/todos/1)))))
 delectus aut aute
 h>
@@ -39,7 +30,6 @@ h> (set 'recursive (lambda (x y) (if (eq? x 0) y (recursive (- x 1) (+ y x))))
 [Function]
 h> (recursive 5 0)
 15
-h>
 ```
 
 #### Library <a name="lib"></a>
@@ -48,33 +38,14 @@ lisp.js exports functions: `tokenize`, `parse`, `interpret`, `run`
 Using `run` function to execute a program:
 
 ```javascript
-const {run} = require("./lisp.js");
+const { run } = require("./lisp.js");
 
 const program = `
 
-(print (cdr (assoc 'title (json (req 'https://jsonplaceholder.typicode.com/todos/1)))))
+(defun do-request (url)
+    (print (cdr (assoc 'title (json (req url))))))
 
-(set 'reverse_div (lambda (x y) (/ y x)))
-
-(reverse_div 2 10)
-
-(call (lambda (x y) (* y x))
-    2 44)
-
-(if (not (eq? (+ (/ 10 2) 20) 45))
-    (reverse_div 20 100)
-    (let (k 3) (+ k 6)))
-
-(let (k 3)
-    (let (m (- 10 5))
-        (+ k m)))
-
-(set 'pot (lambda (x) (* x x)))
-(pot 6)
-(pot 66)
-
-(eval '(eq? 111 111))
-`;
+(do-request 'https://jsonplaceholder.typicode.com/todos/1)`;
 
 console.log(run(program));
 ```
@@ -84,16 +55,19 @@ console.log(run(program));
 | Function |   |
 |----------|---|
 | `+`      | `(+ &rest NUMBERS)` Returns sum of given args. |
-| `-`      | `(- first &rest NUMBERS)` Subtract numbers from the first number. If only one number given, it is negated. |
-| `*`      | `(+ &rest NUMBERS)` Returns product of given args. |
-| `/`      | `(+ first &rest NUMBERS)` Returns division of first and the rest of the given args. |
-| `eq?`    | `(eq? a b)` Checks for equality between a and b. Returns true/false  |
+| `-`      | `(- NUMBER &rest NUMBERS)` Subtract numbers from the first number. If only one number given, it is negated. |
+| `*`      | `(* &rest NUMBERS)` Returns product of given args. |
+| `/`      | `(/ NUMBER &rest NUMBERS)` Returns division of first and the rest of the given args. |
+| `eq?`    | `(eq? OBJECT OBJECT)` Checks for equality between two args. Returns true/false  |
+| `<`     |   |
+| `>`     |   |
 | `if`     |   |
 | `not`    |   |
 | `cons`   |   |
+| `list`   |   |
 | `car`    |   |
 | `cdr`    |   |
-| `list`   |   |
+| `length`    |   |
 | `assoc`  |   |
 | `set`    |   |
 | `defun`  |   |
@@ -104,6 +78,21 @@ console.log(run(program));
 | `print`  |   |
 | `req`    |   |
 | `json`   |   |
+| `read`   |   |
+| `file`   |   |
+| `match`   |   |
+| `slice`   |   |
+| `append`   |   |
+| `nth`   |   |
+| `flat-length`   |   |
+| `nil`   | `nil` Empty list  |
+| `infer-type`   |   |
+| `type`   | `(type OBJECT)` Returns the type of the given arg. |
+| `is-list`   | `(is-list OBJECT)` Returns true if arg is a list, otherwise false. |
+| `concat`   |   |
+| `substring`   |   |
+| `replace`   |   |
+| `sanitize`   |   |
 
 ### Lisp-in-lisp-in-js <a name="lisp2"></a>
 
