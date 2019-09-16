@@ -8,7 +8,7 @@ Lisp interpreter in Javascript
 5. [Roadmap](#roadmap)
 
 #### REPL <a name="repl"></a>
-Running repl.js gives you a lisp prompt:
+Running lisp.js gives you a lisp prompt:
 
 ```lisp
 $ node repl
