@@ -51,20 +51,42 @@ function tokenize(input) {
       continue;
     }
 
-    match(
-      "(", c => lexemes.push(c),
-      " ", c => (lex_builder.length === 0 ? null : lexemes.push(pop_lex_builder())),
-      ")", c => [lex_builder.length === 0 ? null : lexemes.push(pop_lex_builder()), lexemes.push(c)],
-      "'", c => {
-        quote_level = 1;
-        lex_builder += c;
-      },
-      "\"", c => {
-        is_string_literal = true;
-        lex_builder += c;
-      },
-      c => { lex_builder += c; }
-    )(c);
+    // match(
+    //   "(", c => lexemes.push(c),
+    //   " ", c => (lex_builder.length === 0 ? null : lexemes.push(pop_lex_builder())),
+    //   ")", c => [lex_builder.length === 0 ? null : lexemes.push(pop_lex_builder()), lexemes.push(c)],
+    //   "'", c => {
+    //     quote_level = 1;
+    //     lex_builder += c;
+    //   },
+    //   "\"", c => {
+    //     is_string_literal = true;
+    //     lex_builder += c;
+    //   },
+    //   c => { lex_builder += c; }
+    // )(c);
+    switch (c) {
+    case "(":
+      lexemes.push(c);
+      break;
+    case " ":
+      (lex_builder.length === 0 ? null : lexemes.push(pop_lex_builder()));
+      break;
+    case ")":
+      lex_builder.length === 0 ? null : lexemes.push(pop_lex_builder());
+      lexemes.push(c);
+      break;
+    case "'":
+      quote_level = 1;
+      lex_builder += c;
+      break;
+    case "\"":
+      is_string_literal = true;
+      lex_builder += c;
+      break;
+    default:
+      lex_builder += c;
+    }
   }
 
   if (lex_builder.length > 0)
@@ -92,11 +114,22 @@ function parse(lexemes) {
 
   let popout = false;
   while (lexemes.length > 0 && !popout) {
-    match(
-      "(", l => ast.push(parse(lexemes)),
-      ")", l => { popout = true; },
-      l => ast.push(parse_symbol(l))
-    )(lexemes.shift());
+    // match(
+    //   "(", l => ast.push(parse(lexemes)),
+    //   ")", l => { popout = true; },
+    //   l => ast.push(parse_symbol(l))
+    // )(lexemes.shift());
+    let l = lexemes.shift();
+    switch(l) {
+    case "(":
+      ast.push(parse(lexemes));
+      break;
+    case ")":
+      popout = true;
+      break;
+    default:
+      ast.push(parse_symbol(l));
+    }
   }
   return ast;
 }
