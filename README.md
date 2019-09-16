@@ -47,7 +47,7 @@ console.log(run(program));
     
 ### Built-ins <a name="builtins"></a>
 
-| ...Name... | ...Explanation...  |
+| ......Name...... | Explanation  |
 |----------|---|
 | `+`      | `(+ &rest NUMBERS)` Returns sum of given args. |
 | `-`      | `(- NUMBER &rest NUMBERS)` Subtract numbers from the first number. If only one number given, it is negated. |
