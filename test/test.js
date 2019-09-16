@@ -25,7 +25,7 @@ const interpret_string = async str => (await interpret(parse(tokenize(str)), {})
 
 // Load lisp-in-lisp-in-js interpreter
 
-const interpreter_path = __dirname + '/../lisp_in_lisp_in_js/lisp2.lisp';
+const interpreter_path = __dirname + '/../lisp_in_lisp/lisp2.lisp';
 const interpreter_src = fs.readFileSync(interpreter_path).toString();
 
 const lisp2_interpret_string = async str => {

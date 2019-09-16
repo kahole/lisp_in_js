@@ -171,7 +171,7 @@ const store = {
   "length": args => args[0].length,
   "assoc": args => {
     const pair = args[1].find(e => e[0] === args[0]);
-    return pair ? pair : [];
+    return pair || [];
   },
   "set": args => {
     store[args[0]] = args[1];
@@ -232,7 +232,6 @@ const store = {
   // "includes": args => args[0].includes(args[1]),
   "replace": args => args[2].replace(new RegExp(args[0], "g"), args[1]),
   "sanitize": args => sanitize(args[0]),
-  
 };
 
 // Read write stream

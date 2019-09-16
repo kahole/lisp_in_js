@@ -252,7 +252,7 @@
   (progn
     (if (< level max-level)
         (run-program
-         (concat (file "/Users/khol/privat/lisp_in_js/lisp_in_lisp_in_js/lisp2.lisp") " (init-tower " (+ level 1) " " max-level ")"))
+         (concat (file "/Users/khol/privat/lisp_in_js/lisp_in_lisp/lisp2.lisp") " (init-tower " (+ level 1) " " max-level ")"))
       nil)
     (tower-repl (concat "lisp-" level "> "))
     )
