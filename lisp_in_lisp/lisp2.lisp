@@ -97,8 +97,6 @@
 
 (defun lookup (env key)
 
-  (progn
-    (print store)
   (let (env-pair (get-dict key env))
     (if (eq? (length env-pair) 0)
         (let (store-pair (get-dict key store))
@@ -107,7 +105,7 @@
             (nth 1 store-pair)
             )
           )
-      (nth 1 env-pair)))))
+      (nth 1 env-pair))))
 
 (defun interpret-exp (ast env)
 
@@ -143,95 +141,97 @@
           (interpret (cdr ast) env))))
 
 (set 'store
-     (dict
-      (list '+ (lambda (args) (+ (car args) (nth 1 args))))
-      (list '- (lambda (args) (- (car args) (nth 1 args))))
-      (list '* (lambda (args) (* (car args) (nth 1 args))))
-      (list '/ (lambda (args) (/ (car args) (nth 1 args))))
-      (list 'eq? (lambda (args) (eq? (car args) (nth 1 args))))
-      (list '< (lambda (args) (< (car args) (nth 1 args))))
-      (list '> (lambda (args) (> (car args) (nth 1 args))))
-      (list 'if (lambda (args env) (if (car args)
-                                       (interpret-exp (nth 1 args) env)
-                                     (interpret-exp (nth 1 (cdr args)) env))))
-      (list 'not (lambda (args) (not (car args))))
-      (list 'cons (lambda (args) (cons (car args) (nth 1 args))))
-      (list 'list (lambda (args) args))
-      (list 'car (lambda (args) (car (car args))))
-      (list 'cdr (lambda (args) (cdr (car args))))
-      (list 'length (lambda (args) (length (car args))))
-      (list 'assoc (lambda (args) (assoc (car args) (nth 1 args))))
-      (list 'set (lambda (args)
-                   (progn
-                    (set 'store (put-dict (list (car args) (nth 1 args)) store))
-                    (nth 1 args))))
+     (assoc-to-dict
+      (list
+       (list '+ (lambda (args) (+ (car args) (nth 1 args))))
+       (list '- (lambda (args) (- (car args) (nth 1 args))))
+       (list '* (lambda (args) (* (car args) (nth 1 args))))
+       (list '/ (lambda (args) (/ (car args) (nth 1 args))))
+       (list 'eq? (lambda (args) (eq? (car args) (nth 1 args))))
+       (list '< (lambda (args) (< (car args) (nth 1 args))))
+       (list '> (lambda (args) (> (car args) (nth 1 args))))
+       (list 'if (lambda (args env) (if (car args)
+                                   (interpret-exp (nth 1 args) env)
+                                 (interpret-exp (nth 1 (cdr args)) env))))
+       (list 'not (lambda (args) (not (car args))))
+       (list 'cons (lambda (args) (cons (car args) (nth 1 args))))
+       (list 'list (lambda (args) args))
+       (list 'car (lambda (args) (car (car args))))
+       (list 'cdr (lambda (args) (cdr (car args))))
+       (list 'length (lambda (args) (length (car args))))
+       (list 'assoc (lambda (args) (assoc (car args) (nth 1 args))))
+       (list 'set (lambda (args)
+                    (progn
+                      (set 'store (put-dict (list (car args) (nth 1 args)) store))
+                      (nth 1 args))))
 
-      ;; Unecessarily complicated way of setting variable in the store , can directly set store instead
-      (list 'defun (lambda (args env) (call (lookup env 'set)
-                                            (list (car args) 
-                                            (call (lookup env 'lambda) (cdr args) env)))))
+       ;; Unecessarily complicated way of setting variable in the store , can directly set store instead
+       (list 'defun (lambda (args env) (call (lookup env 'set)
+                                        (list (car args) 
+                                              (call (lookup env 'lambda) (cdr args) env)))))
 
-      (list 'let (lambda (args env)
-                   (let (key (car (car args)))
-                     (let (val (interpret-exp (nth 1 (car args)) env))
-                       (interpret-exp (nth 1 args) (put-dict (list key val) env))
-                       ))
-                   ))
+       (list 'let (lambda (args env)
+                    (let (key (car (car args)))
+                      (let (val (interpret-exp (nth 1 (car args)) env))
+                        (interpret-exp (nth 1 args) (put-dict (list key val) env))
+                        ))
+                    ))
 
-      (list 'lambda (lambda (args env)
-                      (lambda (lam-args)
-                        (let (lam-arg-bindings
-                              (double-map (car args) lam-args (lambda (key val)
-                                                                (list key val))))
-                          (interpret-exp (nth 1 args) (merge-dict (assoc-to-dict lam-arg-bindings) env))))))
-      (list 'call (lambda (args) (call (car args) (cdr args))))
-      (list 'eval (lambda (args env) (car (interpret (parse (tokenize (car args))) env))))
-      (list 'progn (lambda (args) (nth (- (length args) 1) args)))
+       (list 'lambda (lambda (args env)
+                  (lambda (lam-args)
+                    (let (lam-arg-bindings
+                          (double-map (car args) lam-args (lambda (key val)
+                                                            (list key val))))
+                      (interpret-exp (nth 1 args) (merge-dict (assoc-to-dict lam-arg-bindings) env))))))
+       (list 'call (lambda (args) (call (car args) (cdr args))))
+       (list 'eval (lambda (args env) (car (interpret (parse (tokenize (car args))) env))))
+       (list 'progn (lambda (args) (nth (- (length args) 1) args)))
 
-      (list 'print (lambda (args) (print (car args))))
+       (list 'print (lambda (args) (print (car args))))
 
-      (list 'req (lambda (args) (req (car args))))
-      (list 'json (lambda (args) (json (car args))))
-      (list 'read (lambda (args) (read (car args))))
-      (list 'file (lambda (args) (file (car args))))
+       (list 'req (lambda (args) (req (car args))))
+       (list 'json (lambda (args) (json (car args))))
+       (list 'read (lambda (args) (read (car args))))
+       (list 'file (lambda (args) (file (car args))))
 
-      (list 'match (lambda (args env)
-                     (for-match (car args) (cdr args) env)
-                     ))
+       (list 'match (lambda (args env)
+                      (for-match (car args) (cdr args) env)
+                      ))
 
-      (list 'slice (lambda (args) (slice (car args) (nth 1 args) (nth 2 args))))
-      (list 'append (lambda (args) (append (car args) (nth 1 args))))
-      (list 'nth (lambda (args) (nth (car args) (nth 1 args))))
-      (list 'flat-length (lambda (args) (flat-length (car args))))
+       (list 'slice (lambda (args) (slice (car args) (nth 1 args) (nth 2 args))))
+       (list 'append (lambda (args) (append (car args) (nth 1 args))))
+       (list 'nth (lambda (args) (nth (car args) (nth 1 args))))
+       (list 'flat-length (lambda (args) (flat-length (car args))))
 
-      (list 'nil (list))
+       (list 'nil (list))
 
-      (list 'infer-type (lambda (args) (infer-type (car args))))
-      (list 'type (lambda (args) (type (car args))))
-      (list 'is-list (lambda (args) (is-list (car args))))
+       (list 'infer-type (lambda (args) (infer-type (car args))))
+       (list 'type (lambda (args) (type (car args))))
+       (list 'is-list (lambda (args) (is-list (car args))))
 
-      (list 'concat (lambda (args) (reduce args "" concat)))
-      (list 'substring (lambda (args) (substring (car args) (nth 1 args) (nth 2 args))))
-      (list 'replace (lambda (args) (replace (car args) (nth 1 args) (nth 2 args))))
-      (list 'sanitize (lambda (args) (sanitize (car args))))
+       (list 'concat (lambda (args) (reduce args "" concat)))
+       (list 'substring (lambda (args) (substring (car args) (nth 1 args) (nth 2 args))))
+       (list 'replace (lambda (args) (replace (car args) (nth 1 args) (nth 2 args))))
+       (list 'sanitize (lambda (args) (sanitize (car args))))
 
-      ;; Dictionaries
-      
-      (list 'dict (lambda (args) (dict args)))
-      (list 'put-dict (lambda (args) (put-dict (car args) (nth 1 args))))
-      (list 'merge-dict (lambda (args) (merge-dict (car args) (nth 1 args))))
-      (list 'assoc-to-dict (lambda (args) (assoc-to-dict (car args) (nth 1 args))))
-      (list 'get-dict (lambda (args) (get-dict (car args) (nth 1 args))))
-      ))
+       ;; Dictionaries
+       
+       ;; (list 'dict (lambda (args) (dict (car args))))
+       (list 'put-dict (lambda (args) (put-dict (car args) (nth 1 args))))
+       (list 'merge-dict (lambda (args) (merge-dict (car args) (nth 1 args))))
+       (list 'assoc-to-dict (lambda (args) (assoc-to-dict (car args) (nth 1 args))))
+       (list 'get-dict (lambda (args) (get-dict (car args) (nth 1 args))))
+       (list 'nil-dict (lambda (args) (nil-dict)))
+       )))
 
 (defun repl (prompt)
     (let (line (read prompt))
       (if (eq? (length line) 0)
           (repl prompt)
-        (repl prompt (print (car (interpret (parse (tokenize line)) (dict))))))))
+        (repl prompt (print (car (interpret (parse (tokenize line)) (nil-dict))))))))
 
 (defun run-program (src)
-  (interpret (parse (tokenize (sanitize src))) (dict)))
+  (interpret (parse (tokenize (sanitize src))) (nil-dict)))
 
 
 ;; Towers
@@ -248,14 +248,14 @@
     (let (line (read prompt))
       (if (eq? (length line) 0)
           (tower-repl prompt)
-        (tower-repl prompt (print (car (interpret (parse (tokenize line)) (dict)))))))))
+        (tower-repl prompt (print (car (interpret (parse (tokenize line)) (nil-dict)))))))))
 
 ;; old-cont
 (set 'abort-repl false)
 
 ;; Execute meta - Call eval from emulated store to execute in interpreter above.
 (defun em (exp)
-  (call (lookup (dict) 'eval) (list exp) (dict)))
+  (call (lookup (nil-dict) 'eval) (list exp) (nil-dict)))
 
 (defun init-tower (level max-level)
   ;; Load next interpreter
