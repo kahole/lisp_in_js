@@ -97,9 +97,9 @@
 
 (defun lookup (env key)
 
-  (let (env-pair (assoc key env))
+  (let (env-pair (get-dict key env))
     (if (eq? (length env-pair) 0)
-        (let (store-pair (assoc key store))
+        (let (store-pair (get-dict key store))
           (if (eq? (length store-pair) 0)
               (print (concat "Variable not bound: " key))
             (nth 1 store-pair)
@@ -141,7 +141,7 @@
           (interpret (cdr ast) env))))
 
 (set 'store
-     (list
+     (dict
       (list '+ (lambda (args) (+ (car args) (nth 1 args))))
       (list '- (lambda (args) (- (car args) (nth 1 args))))
       (list '* (lambda (args) (* (car args) (nth 1 args))))
@@ -161,9 +161,10 @@
       (list 'assoc (lambda (args) (assoc (car args) (nth 1 args))))
       (list 'set (lambda (args)
                    (progn
-                    (set 'store (cons (list (car args) (nth 1 args)) store))
+                    (set 'store (put-dict (list (car args) (nth 1 args)) store))
                     (nth 1 args))))
 
+      ;; Unecessarily complicated way of setting variable in the store , can directly set store instead
       (list 'defun (lambda (args env) (call (lookup env 'set)
                                             (list (car args) 
                                             (call (lookup env 'lambda) (cdr args) env)))))
@@ -171,7 +172,7 @@
       (list 'let (lambda (args env)
                    (let (key (car (car args)))
                      (let (val (interpret-exp (nth 1 (car args)) env))
-                       (interpret-exp (nth 1 args) (cons (list key val) env))
+                       (interpret-exp (nth 1 args) (put-dict (list key val) env))
                        ))
                    ))
 
@@ -180,7 +181,7 @@
                         (let (lam-arg-bindings
                               (double-map (car args) lam-args (lambda (key val)
                                                                 (list key val))))
-                          (interpret-exp (nth 1 args) (append lam-arg-bindings env))))))
+                          (interpret-exp (nth 1 args) (put-list-dict lam-arg-bindings env))))))
       (list 'call (lambda (args) (call (car args) (cdr args))))
       (list 'eval (lambda (args env) (car (interpret (parse (tokenize (car args))) env))))
       (list 'progn (lambda (args) (nth (- (length args) 1) args)))
@@ -212,21 +213,25 @@
       (list 'substring (lambda (args) (substring (car args) (nth 1 args) (nth 2 args))))
       (list 'replace (lambda (args) (replace (car args) (nth 1 args) (nth 2 args))))
       (list 'sanitize (lambda (args) (sanitize (car args))))
+
+      ;; Dictionaries
+      
+      (list 'dict (lambda (args) (dict args)))
       ))
 
 (defun repl (prompt)
     (let (line (read prompt))
       (if (eq? (length line) 0)
           (repl prompt)
-        (repl prompt (print (car (interpret (parse (tokenize line)) (list))))))))
+        (repl prompt (print (car (interpret (parse (tokenize line)) (dict))))))))
 
 (defun run-program (src)
-  (interpret (parse (tokenize (sanitize src))) (list)))
+  (interpret (parse (tokenize (sanitize src))) (dict)))
 
 
 ;; Towers
 
-(set 'store (cons 
+(set 'store (put-dict
              (list 'old-cont (lambda (args) (progn (set 'abort-repl true) (set 'contd-value (eval (car args))) nil)))
              store))
 
@@ -238,14 +243,14 @@
     (let (line (read prompt))
       (if (eq? (length line) 0)
           (tower-repl prompt)
-        (tower-repl prompt (print (car (interpret (parse (tokenize line)) (list)))))))))
+        (tower-repl prompt (print (car (interpret (parse (tokenize line)) (dict)))))))))
 
 ;; old-cont
 (set 'abort-repl false)
 
 ;; Execute meta - Call eval from emulated store to execute in interpreter above.
 (defun em (exp)
-  (call (lookup (list) 'eval) (list exp) (list)))
+  (call (lookup (dict) 'eval) (list exp) (dict)))
 
 (defun init-tower (level max-level)
   ;; Load next interpreter
