@@ -223,11 +223,7 @@
   (interpret (parse (tokenize (sanitize src))) (list)))
 
 
-;; Towers
-
-(set 'store (cons 
-             (list 'old-cont (lambda (args) (progn (set 'abort-repl true) (set 'contd-value (eval (car args))) nil)))
-             store))
+;; Interpreter Tower
 
 (defun tower-repl (prompt)
   (if abort-repl
@@ -242,16 +238,25 @@
 ;; old-cont
 (set 'abort-repl false)
 
+(set 'store (cons 
+             (list 'old-cont (lambda (args) (progn (set 'abort-repl true) (set 'contd-value (eval (car args))) "Moving down")))
+             store))
+
 ;; Execute meta - Call eval from emulated store to execute in interpreter above.
 (defun em (exp)
   (call (lookup (list) 'eval) (list exp) (list)))
 
+(defun em-cont ()
+  (tower-repl (concat "lisp-" tower-level "> ")))
+
 (defun init-tower (level max-level)
-  ;; Load next interpreter
   (progn
+    (set 'tower-level level)
     (if (< level max-level)
-        (run-program
-         (concat (file "lisp2.lisp") " (init-tower " (+ level 1) " " max-level ")"))
+        ;; Load next interpreter
+        (progn
+          (run-program (file "lisp2.lisp"))
+          (print (car (run-program (concat " (init-tower " (+ level 1) " " max-level ")")))))
       nil)
     (tower-repl (concat "lisp-" level "> "))
     )
