@@ -208,7 +208,6 @@
       (list 'type (lambda (args) (type (car args))))
       (list 'is-list (lambda (args) (is-list (car args))))
 
-      ;; (list 'concat (lambda (args) (concat (car args) (nth 1 args))))
       (list 'concat (lambda (args) (reduce args "" concat)))
       (list 'substring (lambda (args) (substring (car args) (nth 1 args) (nth 2 args))))
       (list 'replace (lambda (args) (replace (car args) (nth 1 args) (nth 2 args))))

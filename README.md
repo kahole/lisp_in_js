@@ -100,11 +100,10 @@ Could be interesting having it as a builtin in only lisp2.
 ### Roadmap <a name="roadmap"></a>
 
 - Optimization
-  - Using assoc list for store and env is terrible for performance
+  - Using current assoc list implementation for store and env is terrible for performance
   - Tail-call optimization
 - Quoted lists (?)
-  - Assoc lists
-- proper cons-cells (?)
+  - proper assoc lists
 - Macros
 - Datastructure around types (?)
 - Concurrency, forking interpreter
