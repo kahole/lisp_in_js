@@ -252,7 +252,7 @@
 ;; old-cont
 (set 'abort-repl false)
 
-(set 'store (cons 
+(set 'store (put-dict
              (list 'old-cont (lambda (args) (progn (set 'abort-repl true) (set 'contd-value (eval (car args))) "Moving down")))
              store))
 
