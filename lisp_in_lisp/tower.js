@@ -8,17 +8,20 @@ fs.readFile(interpreter_path, function (err, data) {
     throw err; 
   }
 
-  const max_levels = (process.argv[2]-1) || 2;
+  const max_level = process.argv[2] ? process.argv[2]-1 : 2;
   
   const interpreter_src = data.toString();
-  const repl_instance = interpreter_src + ` (repl "lisp-1> ")`;
+  const level = 0;
 
-  run(interpreter_src)
-    .then(() => run(`(init-tower 1 ${max_levels})`))
-    .then((res) => {
-      console.log(res[0]);
-      repl("lisp-0> ");
-    })
-    .catch(console.log)
-
+  if (level < max_level) {
+    run(interpreter_src)
+      .then(() => run(`(init-tower ${level+1} ${max_level})`))
+      .then((res) => {
+        console.log(res[0]);
+        repl("lisp-0> ");
+      })
+      .catch(console.log)
+  } else {
+    repl(`lisp-${level}> `);
+  }
 });

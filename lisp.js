@@ -237,7 +237,6 @@ const store = {
   "replace": args => args[2].replace(new RegExp(args[0], "g"), args[1]),
   "sanitize": args => sanitize(args[0]),
   // Dictionaries, replacement for proper assoc list implementation
-  // "dict": args => args.reduce( (acc, [key, value]) => { acc[key] = value; return acc; }, {}),
   "dict": args => args.length ? args[0].reduce( (acc, [key, value]) => { acc[key] = value; return acc; }, {}) : {},
   "put-dict": args => Object.assign({}, args[1], {[args[0][0]]: args[0][1]}),
   "get-dict": args => args[1].hasOwnProperty(args[0]) ? ([args[0], args[1][args[0]]]) : [],
@@ -248,14 +247,14 @@ const store = {
 
 // Read write stream
 
-// const completes = Object.keys(store);
+const completes = Object.keys(store);
 
-// function completer(linePartial, callback) {
-//   const hits = completes.filter((c) => c.startsWith(linePartial));
-//   callback(null, [hits, linePartial]);
-// }
+function completer(linePartial, callback) {
+  const hits = completes.filter((c) => ("(" + c).startsWith(linePartial));
+  callback(null, [hits, linePartial.substring(1)]);
+}
 
-const rl = readline.createInterface(process.stdin, process.stdout).on("close", () => {
+const rl = readline.createInterface(process.stdin, process.stdout, completer).on("close", () => {
   console.log("\nkbye!");
   process.exit(0);
 });
