@@ -141,7 +141,7 @@
           (interpret (cdr ast) env))))
 
 (set 'store
-     (assoc-to-dict
+     (dict
       (list
        (list '+ (lambda (args) (+ (car args) (nth 1 args))))
        (list '- (lambda (args) (- (car args) (nth 1 args))))
@@ -182,7 +182,7 @@
                     (let (lam-arg-bindings
                           (double-map (car args) lam-args (lambda (key val)
                                                             (list key val))))
-                      (interpret-exp (nth 1 args) (merge-dict (assoc-to-dict lam-arg-bindings) env))))))
+                      (interpret-exp (nth 1 args) (merge-dict (dict lam-arg-bindings) env))))))
        (list 'call (lambda (args) (call (car args) (cdr args))))
        (list 'eval (lambda (args env) (car (interpret (parse (tokenize (car args))) env))))
        (list 'progn (lambda (args) (nth (- (length args) 1) args)))
@@ -215,13 +215,10 @@
        (list 'sanitize (lambda (args) (sanitize (car args))))
 
        ;; Dictionaries
-       
-       ;; (list 'dict (lambda (args) (dict (car args))))
+       (list 'dict (lambda (args) (if (eq? (length args) 0) (dict) (dict (car args)))))
        (list 'put-dict (lambda (args) (put-dict (car args) (nth 1 args))))
-       (list 'merge-dict (lambda (args) (merge-dict (car args) (nth 1 args))))
-       (list 'assoc-to-dict (lambda (args) (assoc-to-dict (car args) (nth 1 args))))
        (list 'get-dict (lambda (args) (get-dict (car args) (nth 1 args))))
-       (list 'nil-dict (lambda (args) (nil-dict)))
+       (list 'merge-dict (lambda (args) (merge-dict (car args) (nth 1 args))))
 
        (list 'throw (lambda (args) (throw (car args))))
        )))
@@ -230,10 +227,10 @@
     (let (line (read prompt))
       (if (eq? (length line) 0)
           (repl prompt)
-        (repl prompt (print (car (interpret (parse (tokenize line)) (nil-dict))))))))
+        (repl prompt (print (car (interpret (parse (tokenize line)) (dict))))))))
 
 (defun run-program (src)
-  (interpret (parse (tokenize (sanitize src))) (nil-dict)))
+  (interpret (parse (tokenize (sanitize src))) (dict)))
 
 
 ;; Interpreter Tower
@@ -246,7 +243,7 @@
     (let (line (read prompt))
       (if (eq? (length line) 0)
           (tower-repl prompt)
-        (tower-repl prompt (print (car (interpret (parse (tokenize line)) (nil-dict)))))))))
+        (tower-repl prompt (print (car (interpret (parse (tokenize line)) (dict)))))))))
 
 ;; old-cont
 (set 'abort-repl false)
@@ -257,7 +254,7 @@
 
 ;; Execute meta - Call eval from emulated store to execute in interpreter above.
 (defun em (exp)
-  (call (lookup (nil-dict) 'eval) (list exp) (nil-dict)))
+  (call (lookup (dict) 'eval) (list exp) (dict)))
 
 (defun em-cont ()
   (tower-repl (concat "lisp-" tower-level "> ")))
