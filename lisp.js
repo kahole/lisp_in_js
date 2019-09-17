@@ -276,11 +276,11 @@ function readNext(prompt) {
   });
 }
 
-async function repl() {
-  const line = await readNext("h> ");
+async function repl(prompt) {
+  const line = await readNext(prompt);
   if (line)
     console.log((await interpret(parse(tokenize(line)), {}))[0]);
-  repl();
+  repl(prompt);
 }
 
 if (require.main === module) {
@@ -291,5 +291,6 @@ module.exports = {
   tokenize,
   parse,
   interpret,
+  repl,
   run: src => interpret(parse(tokenize(sanitize(src))), {})
 };
