@@ -93,8 +93,7 @@ console.log(run(program));
 
 Can manipulate the interpreter while its running. Going up a level the language will have changed.
 
-Interesting case with `map`. Not builtin to either interpreter, Lives in store of level-1 interpreter, meaning it's a variable in level.
-Could be interesting having it as a builtin in only lisp2.
+Interesting case with `map`. Not a builtin in any store, Lives in store of level-1 interpreter, meaning it's a variable in level.
 
 
 ### Roadmap <a name="roadmap"></a>
