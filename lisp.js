@@ -242,7 +242,9 @@ const store = {
   "get-dict": args => args[1].hasOwnProperty(args[0]) ? ([args[0], args[1][args[0]]]) : [],
   "merge-dict": args => Object.assign({}, args[1], args[0]),
 
-  "throw": args => { throw new Error(args[0]);},
+  "throw": args => ([ args[0], args[1] ]),
+  "catch": args => ([ args[0], args[1] ]),
+
 };
 
 // Read write stream

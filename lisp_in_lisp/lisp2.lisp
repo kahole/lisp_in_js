@@ -101,7 +101,7 @@
     (if (eq? (length env-pair) 0)
         (let (store-pair (get-dict key store))
           (if (eq? (length store-pair) 0)
-              (throw (concat "Variable not bound: " key))
+              (throw 'var-not-bound-error (concat "Variable not bound: " key))
             (nth 1 store-pair)
             )
           )
@@ -120,6 +120,7 @@
                  "let" (call proc (cdr ast) env)
                  "lambda" (call proc (cdr ast) env)
                  "defun" (call proc (cdr ast) env)
+                 "catch" (call proc (cdr ast) env)
                  (call proc
                        (map (cdr ast) (lambda (x) (interpret-exp x env)))
                        env)))
@@ -220,7 +221,8 @@
        (list 'get-dict (lambda (args) (get-dict (car args) (nth 1 args))))
        (list 'merge-dict (lambda (args) (merge-dict (car args) (nth 1 args))))
 
-       (list 'throw (lambda (args) (throw (car args))))
+       (list 'throw (lambda (args env) (interpret-exp (lookup env (concat "cont-" (car args))) env)))
+       (list 'catch (lambda (args env) (interpret-exp (nth 1 args) (put-dict (list (concat "cont-" (car args)) (nth 2 args)) env))))
        )))
 
 (defun repl (prompt)
