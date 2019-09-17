@@ -102,12 +102,11 @@ Interesting case with `map`. Not a builtin in any store, Lives in store of level
 
 ### Roadmap <a name="roadmap"></a>
 
+- Error handling
 - Optimization
-  - Using current assoc list implementation for store and env is terrible for performance
   - Tail-call optimization
 - Quoted lists (?)
   - proper assoc lists
 - Macros
-- Datastructure around types (?)
 - Concurrency, forking interpreter
 - Docs for all functions
