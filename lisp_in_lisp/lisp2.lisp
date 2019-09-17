@@ -101,7 +101,11 @@
     (if (eq? (length env-pair) 0)
         (let (store-pair (get-dict key store))
           (if (eq? (length store-pair) 0)
-              (throw (concat "Variable not bound: " key))
+              (progn
+                (print (concat "Variable not bound: " key))
+                (print "Moving up a meta level")
+                (em '(em-cont)))
+              ;; (throw (concat "Variable not bound: " key))
             (nth 1 store-pair)
             )
           )
