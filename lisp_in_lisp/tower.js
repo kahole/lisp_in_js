@@ -18,10 +18,10 @@ fs.readFile(interpreter_path, function (err, data) {
       .then(() => run(`(init-tower ${level+1} ${max_level})`))
       .then((res) => {
         console.log(res[0]);
-        repl("lisp-0> ");
+        repl("lisp-base> ");
       })
       .catch(console.log)
   } else {
-    repl(`lisp-${level}> `);
+    repl(`lisp-base> `);
   }
 });
