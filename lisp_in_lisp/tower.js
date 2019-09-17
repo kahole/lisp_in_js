@@ -8,7 +8,7 @@ fs.readFile(interpreter_path, function (err, data) {
     throw err; 
   }
 
-  const max_levels = process.argv[2] || 2;
+  const max_levels = (process.argv[2]-1) || 2;
   
   const interpreter_src = data.toString();
   const repl_instance = interpreter_src + ` (repl "lisp-1> ")`;
