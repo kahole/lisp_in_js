@@ -247,7 +247,10 @@
     (let (line (read prompt))
       (if (eq? (length line) 0)
           (tower-repl prompt)
-        (tower-repl prompt (print (car (interpret (parse (tokenize line)) (dict)))))))))
+        (tower-repl prompt (print (car (interpret (transform (parse (tokenize line))) (dict)))))))))
+
+;; Transform hook, making it simpler to change the interpreter while running
+(defun transform (ast) ast)
 
 ;; old-cont
 (set 'abort-repl false)
