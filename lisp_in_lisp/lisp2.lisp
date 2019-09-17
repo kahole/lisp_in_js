@@ -113,14 +113,18 @@
       nil
 
     (if (is-list ast)
-        (let (proc (lookup env (car ast)))
+        (let (proc
+              (catch 'var-not-bound-error
+                (lookup env (car ast))
+                (print "EXCEPTION!!"))
+              )
           (match (car ast)
                  "if" (call proc (cons (interpret-exp (nth 1 ast) env) (cdr (cdr ast))) env)
                  "match" (call proc (cons (interpret-exp (nth 1 ast) env) (cdr (cdr ast))) env)
+                 "catch" (call proc (cons (interpret-exp (nth 1 ast) env) (cdr (cdr ast))) env)
                  "let" (call proc (cdr ast) env)
                  "lambda" (call proc (cdr ast) env)
                  "defun" (call proc (cdr ast) env)
-                 "catch" (call proc (cdr ast) env)
                  (call proc
                        (map (cdr ast) (lambda (x) (interpret-exp x env)))
                        env)))

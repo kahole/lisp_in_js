@@ -118,6 +118,7 @@ async function interpret_exp(ast, env) {
     switch (operator) {
     case "if":
     case "match":
+    case "catch":
       return proc([await interpret_exp(ast[1], env), ...ast.slice(2)], env);
     case "let":
     case "lambda":
@@ -242,9 +243,12 @@ const store = {
   "get-dict": args => args[1].hasOwnProperty(args[0]) ? ([args[0], args[1][args[0]]]) : [],
   "merge-dict": args => Object.assign({}, args[1], args[0]),
 
-  "throw": args => ([ args[0], args[1] ]),
-  "catch": args => ([ args[0], args[1] ]),
-
+  "throw": (args, env) => {
+    return interpret_exp(env["cont-" + args[0]], env);
+  },
+  "catch": (args, env) => {
+    return interpret_exp(args[1], Object.assign({}, env, {["cont-" + args[0]]: args[2]}));
+  },
 };
 
 // Read write stream
