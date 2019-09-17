@@ -1,73 +1,73 @@
-(defun token-quote (chars level)
-  (match (car chars)
-         "'" (concat (car chars) (token-quote (cdr chars) (+ level 0)))
-         "(" (concat (car chars) (token-quote (cdr chars) (+ level 1)))
-         " " (if (eq? level 0) "" (concat (car chars) (token-quote (cdr chars) level)))
-         ")" (if (eq? level 0) "" (concat (car chars) (token-quote (cdr chars) (- level 1))))
-         (concat (car chars) (token-quote (cdr chars) level))
-         )
-  )
+;; (defun token-quote (chars level)
+;;   (match (car chars)
+;;          "'" (concat (car chars) (token-quote (cdr chars) (+ level 0)))
+;;          "(" (concat (car chars) (token-quote (cdr chars) (+ level 1)))
+;;          " " (if (eq? level 0) "" (concat (car chars) (token-quote (cdr chars) level)))
+;;          ")" (if (eq? level 0) "" (concat (car chars) (token-quote (cdr chars) (- level 1))))
+;;          (concat (car chars) (token-quote (cdr chars) level))
+;;          )
+;;   )
 
-(set 'pruned 0)
+;; (set 'pruned 0)
 
-(defun token-string-literal (chars)
+;; (defun token-string-literal (chars)
 
-  (match (car chars)
-         "\"" (car chars)
-         "\\" (progn (set 'pruned (+ pruned 1)) (concat (nth 1 chars) (token-string-literal (cdr (cdr chars)))))
-         (concat (car chars) (token-string-literal (cdr chars)))
-         )
-  )
+;;   (match (car chars)
+;;          "\"" (car chars)
+;;          "\\" (progn (set 'pruned (+ pruned 1)) (concat (nth 1 chars) (token-string-literal (cdr (cdr chars)))))
+;;          (concat (car chars) (token-string-literal (cdr chars)))
+;;          )
+;;   )
 
-(defun token (chars)
-  (if (eq? (length chars) 0)
-      ""
-    (let (char (car chars))
-      (match char
-             "'" (concat "'" (token-quote (cdr chars) 0))
-             "\"" (progn (set 'pruned 0) (concat "\"" (token-string-literal (cdr chars))))
-             "(" char
-             " " ""
-             ")" char
-             (match (nth 1 chars)
-                    ")" char
-                    " " char
-                    (concat char (token (cdr chars)))
-                    )))))
+;; (defun token (chars)
+;;   (if (eq? (length chars) 0)
+;;       ""
+;;     (let (char (car chars))
+;;       (match char
+;;              "'" (concat "'" (token-quote (cdr chars) 0))
+;;              "\"" (progn (set 'pruned 0) (concat "\"" (token-string-literal (cdr chars))))
+;;              "(" char
+;;              " " ""
+;;              ")" char
+;;              (match (nth 1 chars)
+;;                     ")" char
+;;                     " " char
+;;                     (concat char (token (cdr chars)))
+;;                     )))))
 
-(defun tokenize (input)
+;; (defun tokenize (input)
 
-  (progn (set 'pruned 0)
+;;   (progn (set 'pruned 0)
   
-  (if (eq? (length input) 0)
-      nil
-    (let (tok (token input))
-      (if (eq? (length tok) 0)
-          (tokenize (substring 1 (length input) input))
-        (cons tok (tokenize (substring (+ (length tok) pruned) (length input) input)))
-        )))))
+;;   (if (eq? (length input) 0)
+;;       nil
+;;     (let (tok (token input))
+;;       (if (eq? (length tok) 0)
+;;           (tokenize (substring 1 (length input) input))
+;;         (cons tok (tokenize (substring (+ (length tok) pruned) (length input) input)))
+;;         )))))
 
-(defun end-lex-exp-length (lexemes depth count)
+;; (defun end-lex-exp-length (lexemes depth count)
 
-  (if (eq? depth 0)
-      count
-    (end-lex-exp-length (cdr lexemes)
-                        (match (car lexemes)
-                               "(" (+ depth 1)
-                               ")" (- depth 1)
-                               depth)
-                        (+ count 1))))
+;;   (if (eq? depth 0)
+;;       count
+;;     (end-lex-exp-length (cdr lexemes)
+;;                         (match (car lexemes)
+;;                                "(" (+ depth 1)
+;;                                ")" (- depth 1)
+;;                                depth)
+;;                         (+ count 1))))
 
-(defun parse (lexemes)
+;; (defun parse (lexemes)
 
-  (if (eq? (length lexemes) 0)
-      nil
-    (match (car lexemes)
-           "(" (let (exp (parse (cdr lexemes)))
-                 (cons exp
-                       (parse (slice (+ (end-lex-exp-length (cdr lexemes) 1 0) 1) (length lexemes) lexemes))))
-           ")" nil
-           (cons (infer-type (car lexemes)) (parse (cdr lexemes))))))
+;;   (if (eq? (length lexemes) 0)
+;;       nil
+;;     (match (car lexemes)
+;;            "(" (let (exp (parse (cdr lexemes)))
+;;                  (cons exp
+;;                        (parse (slice (+ (end-lex-exp-length (cdr lexemes) 1 0) 1) (length lexemes) lexemes))))
+;;            ")" nil
+;;            (cons (infer-type (car lexemes)) (parse (cdr lexemes))))))
 
 
 (defun map (arr fun)
@@ -229,6 +229,9 @@
        ;; Concurrency, this isnt quite concurrent yet
        (list 'fork (lambda (args env) (fork (interpret-exp (car args) env))))
        (list 'join (lambda (args) (join (car args))))
+
+       (list 'tokenize (lambda (args) (tokenize (car args))))
+       (list 'parse (lambda (args) (parse (car args))))
        )))
 
 (defun repl (prompt)

@@ -247,6 +247,9 @@ const store = {
   // Concurrency, note: interpret_exp is an async function
   "fork": (args, env) => interpret_exp(args[0], env),
   "join": (args, env) => args[0],
+
+  "tokenize": args => tokenize(args[0]),
+  "parse": args => parse(args[0]),
 };
 
 // Read write stream
