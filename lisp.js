@@ -78,8 +78,8 @@ const contains = c => (m) => m.includes(c);
 function parse_symbol(s) {
   if (isNaN(s)) {
     return match(
-      "true", s => true,
-      "false", s => false,
+      "true", true,
+      "false", false,
       s => s
     )(s);
   } else {
@@ -115,18 +115,22 @@ async function interpret_exp(ast, env) {
     const operator = ast[0];
     const proc = lookup(env, store, operator);
     // Special cases for operators that shouldn't have their arguments intepreted immediately.
-    return match(
-      op(["if", "match"]), async _ => proc([await interpret_exp(ast[1], env), ...ast.slice(2)], env),
-      op(["let", "lambda", "defun"]), async _ => proc(ast.slice(1), env),
-      async _ => {
-        const args = ast.slice(1);
-        const results = []; 
-        for (let i = 0; i < args.length; i++) {
-          results.push(await interpret_exp(args[i], env));
-        }
-        return await proc(results, env);
+    switch (operator) {
+    case "if":
+    case "match":
+      return proc([await interpret_exp(ast[1], env), ...ast.slice(2)], env);
+    case "let":
+    case "lambda":
+    case "defun":
+      return proc(ast.slice(1), env);
+    default:
+      const args = ast.slice(1);
+      const results = []; 
+      for (let i = 0; i < args.length; i++) {
+        results.push(await interpret_exp(args[i], env));
       }
-    )(operator);
+      return await proc(results, env);
+    }
     // TODO: tail call optimization
   } else {
     if (typeof ast === "string") {
