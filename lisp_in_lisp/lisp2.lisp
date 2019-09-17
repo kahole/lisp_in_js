@@ -73,12 +73,12 @@
 (defun map (arr fun)
   (if (eq? (length arr) 0)
       nil
-    (cons (call fun (car arr)) (map (cdr arr) fun))))
+    (cons (fun (car arr)) (map (cdr arr) fun))))
 
 (defun double-map (arr arr2 fun)
   (if (eq? (length arr) 0)
       nil
-    (cons (call fun (car arr) (car arr2)) (double-map (cdr arr) (cdr arr2) fun))))
+    (cons (fun (car arr) (car arr2)) (double-map (cdr arr) (cdr arr2) fun))))
 
 (defun for-match (val clauses env)
   (if (eq? (length clauses) 1)
@@ -223,7 +223,6 @@
        (list 'get-dict (lambda (args) (get-dict (car args) (nth 1 args))))
        (list 'nil-dict (lambda (args) (nil-dict)))
 
-       (list 'map map)
        (list 'throw (lambda (args) (throw (car args))))
        )))
 
