@@ -91,7 +91,11 @@ console.log(run(program));
 
 ### Lisp-in-lisp-in-js <a name="lisp2"></a>
 
+[Lisp in lisp](lisp_in_lisp/README.md)
+
 Can manipulate the interpreter while its running. Going up a level the language will have changed.
+Consider adding `transform`, function call that returns its args, between parse and interpret.
+This will make it easier to extend the language by running `(defun transform (ast) (do-something-to-ast)))`.
 
 Interesting case with `map`. Not a builtin in any store, Lives in store of level-1 interpreter, meaning it's a variable in level.
 

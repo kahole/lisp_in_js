@@ -10,4 +10,5 @@ Functions for using the tower:
 | Function |   |
 |----------|---|
 | `em`      | `(em QUOTATION)` Execute-meta. Executes quoted code on the interpreter level above. |
+| `em-cont`      | `(em-cont)` Execute-meta-continue. Runs the repl for the interpreter level above. |
 | `old-cont`      | `(old-cont QUOTATION)` Executes quoted code on the interpreter level below. And continues execution at that level. |
