@@ -4,7 +4,7 @@ Lisp interpreter in Javascript
 1. [REPL](#repl)
 2. [Library](#lib)
 3. [Built-ins list](#builtins)
-4. [Lisp-in-lisp-in-js](#lisp2)
+4. [Lisp-in-lisp and Interpreter tower](#lisp2)
 5. [Roadmap](#roadmap)
 
 #### REPL <a name="repl"></a>
@@ -89,20 +89,19 @@ console.log(run(program));
 | `replace`   |   |
 | `sanitize`   |   |
 
-### Lisp-in-lisp-in-js <a name="lisp2"></a>
+### Lisp-in-lisp and Interpreter tower <a name="lisp2"></a>
 
+Full readme about the `lisp_in_lisp` port of the interpreter written in the interpreted lisp here:
 [Lisp in lisp](lisp_in_lisp/README.md)
 
-Can manipulate the interpreter while its running. Going up a level the language will have changed.
-Consider adding `transform`, function call that returns its args, between parse and interpret.
-This will make it easier to extend the language by running `(defun transform (ast) (do-something-to-ast)))`.
+Because it can interpret itself, you can nest mutliple instances of the interpreter.
+This makes it possible to manipulate the interpreter while its running. Going up a level in the tower the language will have changed.
 
-Interesting case with `map`. Not a builtin in any store, Lives in store of level-1 interpreter, meaning it's a variable in level.
+Interesting case with `map`. Not a builtin in any store, Lives in emulated store of level-1 interpreter, meaning it's a variable in level.
 
 
 ### Roadmap <a name="roadmap"></a>
 
-- Error handling
 - Optimization
   - Tail-call optimization
 - Quoted lists (?)
