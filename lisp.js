@@ -250,6 +250,7 @@ const store = {
 
   "tokenize": args => tokenize(args[0]),
   "parse": args => parse(args[0]),
+  "interpret-exp": async args => await interpret_exp(args[0], args[1]),
 };
 
 // Read write stream
