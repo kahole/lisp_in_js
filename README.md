@@ -11,7 +11,7 @@ Lisp interpreter in Javascript
 Running lisp.js gives you a lisp prompt:
 
 ```lisp
-$ node repl
+$ node lisp
 
 h> (if (not (eq? (+ (* 10 2) 20) 400)) 'apple 'orange)
 apple
