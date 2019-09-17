@@ -236,6 +236,15 @@ const store = {
   // "includes": args => args[0].includes(args[1]),
   "replace": args => args[2].replace(new RegExp(args[0], "g"), args[1]),
   "sanitize": args => sanitize(args[0]),
+  // Dictionaries, replacement for proper assoc list implementation
+  // "dict": args => args.reduce( (acc, [key, value]) => { acc[key] = value; return acc; }, {}),
+  "put-dict": args => Object.assign({}, args[1], {[args[0][0]]: args[0][1]}),
+  "merge-dict": args => Object.assign({}, args[1], args[0]),
+  "assoc-to-dict": args => args[0].reduce( (acc, [key, value]) => { acc[key] = value; return acc; }, {}),
+  "get-dict": args => args[1].hasOwnProperty(args[0]) ? ([args[0], args[1][args[0]]]) : [],
+  "nil-dict": args => ({}),
+
+  "throw": args => { throw new Error(args[0]);},
 };
 
 // Read write stream
