@@ -111,32 +111,32 @@
           )
       (nth 1 env-pair))))
 
-;; (defun interpret-exp (ast env)
+(defun interpret-exp (ast env)
 
-;;   (if (eq? (length ast) 0)
-;;       nil
+  (if (eq? (length ast) 0)
+      nil
 
-;;     (if (is-list ast)
-;;         (let (proc (lookup env (car ast)))
-;;           (match (car ast)
-;;                  "if" (call proc (cons (interpret-exp (nth 1 ast) env) (cdr (cdr ast))) env)
-;;                  "match" (call proc (cons (interpret-exp (nth 1 ast) env) (cdr (cdr ast))) env)
-;;                  "let" (call proc (cdr ast) env)
-;;                  "lambda" (call proc (cdr ast) env)
-;;                  "defun" (call proc (cdr ast) env)
-;;                  (call proc
-;;                        (map (cdr ast) (lambda (x) (interpret-exp x env)))
-;;                        env)))
+    (if (is-list ast)
+        (let (proc (lookup env (car ast)))
+          (match (car ast)
+                 "if" (call proc (cons (interpret-exp (nth 1 ast) env) (cdr (cdr ast))) env)
+                 "match" (call proc (cons (interpret-exp (nth 1 ast) env) (cdr (cdr ast))) env)
+                 "let" (call proc (cdr ast) env)
+                 "lambda" (call proc (cdr ast) env)
+                 "defun" (call proc (cdr ast) env)
+                 (call proc
+                       (map (cdr ast) (lambda (x) (interpret-exp x env)))
+                       env)))
 
-;;       (if (eq? (type ast) "string")
-;;           (match true
-;;                  (eq? (substring 0 1 ast) "'") (substring 1 (length ast) ast)
-;;                  (eq? (substring 0 1 ast) "\"") (substring 1 (- (length ast) 1) ast)
-;;                  (lookup env ast))
-;;         ast
-;;         )
-;;       )
-;;     ))
+      (if (eq? (type ast) "string")
+          (match true
+                 (eq? (substring 0 1 ast) "'") (substring 1 (length ast) ast)
+                 (eq? (substring 0 1 ast) "\"") (substring 1 (- (length ast) 1) ast)
+                 (lookup env ast))
+        ast
+        )
+      )
+    ))
 
 (defun interpret (ast env)
   (cons (interpret-exp (car ast) env)
@@ -231,7 +231,6 @@
 
        (list 'tokenize (lambda (args) (tokenize (car args))))
        (list 'parse (lambda (args) (parse (car args))))
-       (list 'interpret-exp (lambda (args) (interpret-exp (car args) (nth 1 args))))
        )))
 
 (defun repl (prompt)
