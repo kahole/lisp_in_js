@@ -286,7 +286,7 @@ async function repl(prompt) {
 }
 
 if (require.main === module) {
-  repl();
+  repl("h> ");
 }
 
 module.exports = {
