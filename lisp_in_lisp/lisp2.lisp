@@ -60,7 +60,7 @@
       ;;  (list 'interpret-exp (lambda (args) (interpret-exp (car args) (nth 1 args) (nth 2 args))))
       ;;  ;; (list 'eval (lambda (args env) (car (interpret (parse (tokenize (car args))) env store))))
       ;; )
-     )
+      )
      )
 
 (defun repl (prompt)
@@ -94,12 +94,12 @@
 (set 'abort-repl false)
 
 (set 'store (put-dict
-             (list 'old-cont (lambda (args) (progn (set 'abort-repl true) (set 'contd-value (eval (car args))) "Moving down")))
+             (list 'old-cont (lambda (args) (progn (set 'abort-repl true) (set 'contd-value (eval args)) "Moving down")))
              ))
 
-;; Execute meta - Call eval from emulated store to execute in interpreter above.
+;; Execute meta
 (defun em (exp)
-  (call (lookup (dict) 'eval) (list exp) (dict)))
+  (car (interpret (transform (parse (tokenize exp))) (dict))))
 
 (defun em-cont ()
   (tower-repl (concat "lisp-" tower-level "> ")))

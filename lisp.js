@@ -118,21 +118,12 @@ async function interpret_exp(ast, env, level_store) {
     switch (operator) {
     case "if":
     case "match":
-      return proc([await interpret_exp(ast[1], env), ...ast.slice(2)], env, level_store);
+      return proc([await interpret_exp(ast[1], env, level_store), ...ast.slice(2)], env, level_store);
     case "let":
     case "lambda":
     case "defun":
     case "fork":
       return proc(ast.slice(1), env, level_store);
-    case "set":
-      {
-        const args = ast.slice(1);
-        const results = []; 
-        for (let i = 0; i < args.length; i++) {
-          results.push(await interpret_exp(args[i], env, level_store));
-        }
-        return await proc(results, level_store);
-      }
     default:
       const args = ast.slice(1);
       const results = []; 
@@ -189,12 +180,12 @@ const builtins = {
     const pair = args[1].find(e => e[0] === args[0]);
     return pair || [];
   },
-  "set": (args, level_store) => {
+  "set": (args, env, level_store) => {
     level_store[args[0]] = args[1];
     return args[1];
   },
   "defun": (args, env, level_store) => { // can be made as a macro expanding to set and lambda combined
-    level_store[args[0]] = builtins["lambda"](args.slice(1), env);
+    level_store[args[0]] = builtins["lambda"](args.slice(1), env, level_store);
     return level_store[args[0]];
   },
   "let": (args, env, level_store) => {
