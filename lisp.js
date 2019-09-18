@@ -101,7 +101,7 @@ function parse(lexemes) {
   return ast;
 }
 
-function lookup(env, store, level_store, key) {
+function lookup(env, level_store, key) {
   if (env.hasOwnProperty(key)) {
     return env[key];  
   } else if (level_store !== undefined && level_store.hasOwnProperty(key)) {
@@ -115,7 +115,7 @@ function lookup(env, store, level_store, key) {
 async function interpret_exp(ast, env, level_store=undefined) {
   if (Array.isArray(ast)) {
     const operator = ast[0];
-    const proc = lookup(env, store, level_store, operator);
+    const proc = lookup(env, level_store, operator);
     // Special cases for operators that shouldn't have their arguments intepreted immediately.
     switch (operator) {
     case "if":
@@ -151,7 +151,7 @@ async function interpret_exp(ast, env, level_store=undefined) {
       } else if (ast[0] === "\"") {
         return ast.slice(1, ast.length-1);
       } else {
-        return lookup(env, store, level_store, ast);
+        return lookup(env, level_store, ast);
       }
     } else {
       return ast;
