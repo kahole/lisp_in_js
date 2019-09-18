@@ -48,18 +48,18 @@
 ;; http://cs242.stanford.edu/f17/assets/projects/2017/stbarnes.pdf
 
 
-(defun interpret (ast env store)
+(defun interpret (ast env)
   (cons (interpret-exp (car ast) env store)
         (if (eq? (length (cdr ast)) 0)
             nil
-          (interpret (cdr ast) env store))))
+          (interpret (cdr ast) env))))
 
 (set 'store
      (dict
-      (list
-       (list 'interpret-exp (lambda (args) (interpret-exp (car args) (nth 1 args) (nth 2 args))))
-       ;; (list 'eval (lambda (args env) (car (interpret (parse (tokenize (car args))) env store))))
-      )
+      ;; (list
+      ;;  (list 'interpret-exp (lambda (args) (interpret-exp (car args) (nth 1 args) (nth 2 args))))
+      ;;  ;; (list 'eval (lambda (args env) (car (interpret (parse (tokenize (car args))) env store))))
+      ;; )
      )
      )
 
@@ -67,10 +67,10 @@
     (let (line (read prompt))
       (if (eq? (length line) 0)
           (repl prompt)
-        (repl prompt (print (car (interpret (parse (tokenize line)) (dict) store)))))))
+        (repl prompt (print (car (interpret (parse (tokenize line)) (dict))))))))
 
 (defun run-program (src)
-  (interpret (parse (tokenize (sanitize src))) (dict) store))
+  (interpret (parse (tokenize (sanitize src))) (dict)))
 
 
 ;; Interpreter Tower
@@ -85,7 +85,7 @@
           nil
       (if (eq? (length line) 0)
           (tower-repl prompt)
-        (tower-repl prompt (print (car (interpret (transform (parse (tokenize line))) (dict) store)))))))))
+        (tower-repl prompt (print (car (interpret (transform (parse (tokenize line))) (dict))))))))))
 
 ;; Transform hook, making it simpler to change the interpreter while running
 (defun transform (ast) ast)
@@ -95,7 +95,7 @@
 
 (set 'store (put-dict
              (list 'old-cont (lambda (args) (progn (set 'abort-repl true) (set 'contd-value (eval (car args))) "Moving down")))
-             store))
+             ))
 
 ;; Execute meta - Call eval from emulated store to execute in interpreter above.
 (defun em (exp)
