@@ -137,9 +137,7 @@ Interesting case with `map`. Not a builtin in any store, Lives in emulated store
 
 ### Roadmap <a name="roadmap"></a>
 
+- Macros
 - Optimization
   - Tail-call optimization
 - Quoted lists (?)
-  - proper assoc lists
-- Macros
-- Docs for all functions
