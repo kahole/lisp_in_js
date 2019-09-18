@@ -4,8 +4,9 @@ Lisp interpreter in Javascript
 1. [REPL](#repl)
 2. [Library](#lib)
 3. [Built-ins list](#builtins)
-4. [Lisp-in-lisp and Interpreter tower](#lisp2)
-5. [Roadmap](#roadmap)
+4. [Concurrency](#concurrency)
+5. [Lisp-in-lisp and Interpreter tower](#lisp2)
+6. [Roadmap](#roadmap)
 
 #### REPL <a name="repl"></a>
 Running lisp.js gives you a lisp prompt:
@@ -89,6 +90,32 @@ console.log(run(program));
 | `replace`   |   |
 | `sanitize`   |   |
 
+### Concurrency <a name="concurrency"></a>
+
+Interpreter uses promises internally. Thus `fork` just returns a promise that can be waited on by `join`.
+
+```
+(defun hello ()
+  (progn
+    (print "concurrent hello")
+    (print "concurrent hello")
+    (+ 5 5)))
+
+(let (k (fork (hello)))
+  (progn
+    (print "hello")
+    (join k)))
+
+;; Results in:
+
+h> (let (k (fork (hello))) (progn (print "hello") (join k)))
+concurrent hello
+hello
+concurrent hello
+10
+
+```
+
 ### Lisp-in-lisp and Interpreter tower <a name="lisp2"></a>
 
 Full readme about the `lisp_in_lisp` port of the interpreter written in the interpreted lisp here:
@@ -107,5 +134,4 @@ Interesting case with `map`. Not a builtin in any store, Lives in emulated store
 - Quoted lists (?)
   - proper assoc lists
 - Macros
-- Concurrency, forking interpreter
 - Docs for all functions

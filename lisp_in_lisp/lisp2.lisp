@@ -124,6 +124,7 @@
                  "let" (call proc (cdr ast) env)
                  "lambda" (call proc (cdr ast) env)
                  "defun" (call proc (cdr ast) env)
+                 "fork" (call proc (cdr ast) env)
                  (call proc
                        (map (cdr ast) (lambda (x) (interpret-exp x env)))
                        env)))
@@ -225,6 +226,9 @@
        (list 'merge-dict (lambda (args) (merge-dict (car args) (nth 1 args))))
 
        (list 'throw (lambda (args) (throw (car args))))
+       ;; Concurrency, this isnt quite concurrent yet
+       (list 'fork (lambda (args env) (fork (interpret-exp (car args) env))))
+       (list 'join (lambda (args) (join (car args))))
        )))
 
 (defun repl (prompt)

@@ -122,6 +122,7 @@ async function interpret_exp(ast, env) {
     case "let":
     case "lambda":
     case "defun":
+    case "fork":
       return proc(ast.slice(1), env);
     default:
       const args = ast.slice(1);
@@ -243,6 +244,9 @@ const store = {
   "merge-dict": args => Object.assign({}, args[1], args[0]),
 
   "throw": args => { throw new Error(args[0]);},
+  // Concurrency, note: interpret_exp is an async function
+  "fork": (args, env) => interpret_exp(args[0], env),
+  "join": (args, env) => args[0],
 };
 
 // Read write stream
