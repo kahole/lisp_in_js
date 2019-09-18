@@ -38,12 +38,10 @@ function tokenize(input) {
     }
 
     if (is_string_literal) {
-
       if (c === "\\") {
         lex_builder += input[++i];
         continue;
       }
-      
       if (c === '"') {
           is_string_literal = false;
       }
