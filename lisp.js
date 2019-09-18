@@ -101,19 +101,21 @@ function parse(lexemes) {
   return ast;
 }
 
-function lookup(env, store, key) {
+function lookup(env, store, level_store, key) {
   if (env.hasOwnProperty(key)) {
-    return env[key];
+    return env[key];  
+  } else if (level_store !== undefined && level_store.hasOwnProperty(key)) {
+    return level_store[key];
   } else {
     if (store[key] === undefined) throw Error("Variable not bound: " + key);
     return store[key];
   }
 }
 
-async function interpret_exp(ast, env) {
+async function interpret_exp(ast, env, level_store=undefined) {
   if (Array.isArray(ast)) {
     const operator = ast[0];
-    const proc = lookup(env, store, operator);
+    const proc = lookup(env, store, level_store, operator);
     // Special cases for operators that shouldn't have their arguments intepreted immediately.
     switch (operator) {
     case "if":
@@ -124,6 +126,15 @@ async function interpret_exp(ast, env) {
     case "defun":
     case "fork":
       return proc(ast.slice(1), env);
+    case "set":
+      {
+        const args = ast.slice(1);
+        const results = []; 
+        for (let i = 0; i < args.length; i++) {
+          results.push(await interpret_exp(args[i], env));
+        }
+        return await proc(results, level_store || store);
+      }
     default:
       const args = ast.slice(1);
       const results = []; 
@@ -140,7 +151,7 @@ async function interpret_exp(ast, env) {
       } else if (ast[0] === "\"") {
         return ast.slice(1, ast.length-1);
       } else {
-        return lookup(env, store, ast);
+        return lookup(env, store, level_store, ast);
       }
     } else {
       return ast;
@@ -178,8 +189,8 @@ const store = {
     const pair = args[1].find(e => e[0] === args[0]);
     return pair || [];
   },
-  "set": args => {
-    store[args[0]] = args[1];
+  "set": (args, level_store) => {
+    level_store[args[0]] = args[1];
     return args[1];
   },
   "defun": (args, env) => { // can be made as a macro expanding to set and lambda combined
@@ -250,6 +261,7 @@ const store = {
 
   "tokenize": args => tokenize(args[0]),
   "parse": args => parse(args[0]),
+  "interpret-exp": args => interpret_exp(args[0], args[1], args[2]),
 };
 
 // Read write stream
