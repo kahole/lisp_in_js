@@ -50,7 +50,7 @@ console.log(run(program));
 
 Interpreter uses promises internally. Thus `fork` just returns a promise that can be waited on by `join`.
 
-```
+```lisp
 (defun hello ()
   (progn
     (print "concurrent hello")
