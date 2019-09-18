@@ -99,13 +99,18 @@ function parse(lexemes) {
   return ast;
 }
 
-function lookup(env, level_store, key) {
+async function lookup(env, level_store, key) {
   if (env.hasOwnProperty(key)) {
     return env[key];  
   } else if (level_store.hasOwnProperty(key)) {
     return level_store[key];
   } else {
-    if (builtins[key] === undefined) throw Error("Variable not bound: " + key);
+    // if (builtins[key] === undefined) throw Error("Variable not bound: " + key);
+    if (builtins[key] === undefined){
+      console.log("Variable not bound: " + key);
+      console.log("Moving up");
+      return await level_store["em-cont"]();
+    }
     return builtins[key];
   }
 }
@@ -113,7 +118,7 @@ function lookup(env, level_store, key) {
 async function interpret_exp(ast, env, level_store) {
   if (Array.isArray(ast)) {
     const operator = ast[0];
-    const proc = lookup(env, level_store, operator);
+    const proc = await lookup(env, level_store, operator);
     // Special cases for operators that shouldn't have their arguments intepreted immediately.
     switch (operator) {
     case "if":
@@ -140,7 +145,7 @@ async function interpret_exp(ast, env, level_store) {
       } else if (ast[0] === "\"") {
         return ast.slice(1, ast.length-1);
       } else {
-        return lookup(env, level_store, ast);
+        return await lookup(env, level_store, ast);
       }
     } else {
       return ast;
