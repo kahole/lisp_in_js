@@ -111,6 +111,13 @@
           )
       (nth 1 env-pair))))
 
+
+;; Saner way to implement tower:
+;;  - Universal store with normal functions
+;;  - Each interpreter also has a store for interpreter specific stuff
+;;  - Uses tokenize, parse, and interpret from host interpreter.
+;; http://cs242.stanford.edu/f17/assets/projects/2017/stbarnes.pdf
+
 (defun interpret-exp (ast env)
 
   (if (eq? (length ast) 0)
