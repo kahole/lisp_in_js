@@ -71,6 +71,7 @@ console.log(run(program));
 | `lambda`   | `(lambda LIST BODY)` Create function given a list of args, and a function body. |
 | `call`   | `(call FUNC)` Call function. |
 | `eval`   | `(eval QUOTATION)` Eval quoted code. |
+| `progn`   | `(progn OBJECT &rest OBJECT)` Multi-expression statement. Executes all expressions in its body, and returns the return value of the last one. |
 | `print`   | `(print OBJECT)` stdout, prints anything. |
 | `req`   | `(req STRING)` HTTP request. Returns the content at URL provided. |
 | `json`   | `(json STRING)` Returns a assoc list constructed by parsing the provided JSON-string. |
