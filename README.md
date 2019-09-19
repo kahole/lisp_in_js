@@ -1,6 +1,8 @@
 # Lisp interpreter in Javascript
 
-Intro.. lisp interpreter and interpreter tower with recursive interpreter...
+`lisp.js` is an interpreter capable of running a custom dialect of lisp called h-lisp.
+
+The folder `tower` contains a port of the h-lisp-interpreter written in h-lisp and a program for constructing a recursive interpreter tower.
 
 ## Contents
 - [Interpreter tower](#interpreter-tower)
@@ -15,9 +17,9 @@ Intro.. lisp interpreter and interpreter tower with recursive interpreter...
 
 Full readme about the `lisp-in-lisp` port of the interpreter written in the interpreted lisp here:
 
-[Lisp in lisp](tower/README.md)
+[Lisp in lisp](tower/)
 
-Because it can interpret itself, you can nest mutliple instances of the interpreter.
+Because it can interpret itself, mutliple instances of the interpreter can be nested.
 This makes it possible to manipulate the interpreter while its running. Going up a level in the tower the language will have changed.
 
 Interesting case with `map`. Not a builtin in any store, Lives in emulated store of level-1 interpreter, meaning it's a variable in level.
@@ -25,7 +27,7 @@ Interesting case with `map`. Not a builtin in any store, Lives in emulated store
 ## Documentation
 
 ### REPL
-Running lisp.js gives you a lisp prompt:
+Running lisp.js starts a REPL:
 
 ```lisp
 $ node lisp
@@ -64,7 +66,7 @@ console.log(run(program));
 
 ### Concurrency
 
-Interpreter uses promises internally. Thus `fork` just returns a promise that can be waited on by `join`.
+The interpreter uses promises internally. The function `fork` just returns a promise that can be waited on by `join`.
 
 ```lisp
 (defun hello ()

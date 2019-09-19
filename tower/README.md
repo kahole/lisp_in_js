@@ -1,12 +1,13 @@
-# Interpreter Tower
+# (Reflective) (Interpreter) Tower
 
 A port of the interpreter written in the interpreted lisp itself.
 
 Because it can interpret itself, you can nest mutliple instances of the interpreter.
 This makes it possible to manipulate the interpreter while its running. Going up a level in the tower the language will have changed.
 
-
 Interesting case with `map`. Not a builtin in any store, Lives in emulated store of level-1 interpreter, meaning it's a variable in level.
+
+## lisp.lisp vs lisp_full_port.lisp
 
 ## Interpreter tower
 
