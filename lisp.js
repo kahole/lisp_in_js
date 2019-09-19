@@ -71,8 +71,6 @@ function tokenize(input) {
   return lexemes;
 }
 
-const contains = c => (m) => m.includes(c);
-
 function parse_symbol(s) {
   if (isNaN(s)) {
     return match(
