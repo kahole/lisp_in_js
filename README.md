@@ -75,7 +75,7 @@ concurrent hello
 ### Lisp-in-lisp and Interpreter tower <a name="lisp2"></a>
 
 Full readme about the `lisp_in_lisp` port of the interpreter written in the interpreted lisp here:
-[Lisp in lisp](lisp_in_lisp/README.md)
+[Lisp in lisp](tower/README.md)
 
 Because it can interpret itself, you can nest mutliple instances of the interpreter.
 This makes it possible to manipulate the interpreter while its running. Going up a level in the tower the language will have changed.

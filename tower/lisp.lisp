@@ -79,7 +79,7 @@
     (if (< level max-level)
         ;; Load next interpreter
         (progn
-          (run-program (file "lisp2.lisp"))
+          (run-program (file "lisp.lisp"))
           (print (car (run-program (concat " (init-tower " (+ level 1) " " max-level ")")))))
       nil)
     (tower-repl (concat "lisp-" level "> "))

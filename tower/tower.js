@@ -1,7 +1,7 @@
 const { run, repl } = require("../lisp.js");
 const fs = require('fs');
 
-const interpreter_path = __dirname + '/lisp2.lisp';
+const interpreter_path = __dirname + '/lisp.lisp';
 
 fs.readFile(interpreter_path, function (err, data) {
   if (err) {
