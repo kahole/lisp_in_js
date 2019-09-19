@@ -1,14 +1,30 @@
-Lisp interpreter in Javascript
----
-##### Table of Contents
-1. [REPL](#repl)
-2. [Library](#lib)
-3. [Concurrency](#concurrency)
-4. [Lisp-in-lisp and Interpreter tower](#lisp2)
-5. [Roadmap](#roadmap)
-6. [Built-ins list](#builtins)
+# Lisp interpreter in Javascript
 
-#### REPL <a name="repl"></a>
+Intro.. lisp interpreter and interpreter tower with recursive interpreter...
+
+## Contents
+- [Interpreter tower](#interpreter-tower)
+- [Documentation](#documentation)
+  - [REPL](#repl)
+  - [Library](#library)
+  - [Concurrency](#concurrency)
+  - [Built-ins](#built-ins)
+- [Roadmap](#roadmap)
+
+## Interpreter tower
+
+Full readme about the `lisp-in-lisp` port of the interpreter written in the interpreted lisp here:
+
+[Lisp in lisp](tower/README.md)
+
+Because it can interpret itself, you can nest mutliple instances of the interpreter.
+This makes it possible to manipulate the interpreter while its running. Going up a level in the tower the language will have changed.
+
+Interesting case with `map`. Not a builtin in any store, Lives in emulated store of level-1 interpreter, meaning it's a variable in level.
+
+## Documentation
+
+### REPL
 Running lisp.js gives you a lisp prompt:
 
 ```lisp
@@ -29,7 +45,7 @@ h> (recursive 5 0)
 15
 ```
 
-#### Library <a name="lib"></a>
+### Library
 lisp.js exports functions: `tokenize`, `parse`, `interpret`, `run`
 
 Using `run` function to execute a program:
@@ -46,7 +62,7 @@ const program = `
 console.log(run(program));
 ```
 
-### Concurrency <a name="concurrency"></a>
+### Concurrency
 
 Interpreter uses promises internally. Thus `fork` just returns a promise that can be waited on by `join`.
 
@@ -72,24 +88,7 @@ concurrent hello
 
 ```
 
-### Lisp-in-lisp and Interpreter tower <a name="lisp2"></a>
-
-Full readme about the `lisp_in_lisp` port of the interpreter written in the interpreted lisp here:
-[Lisp in lisp](tower/README.md)
-
-Because it can interpret itself, you can nest mutliple instances of the interpreter.
-This makes it possible to manipulate the interpreter while its running. Going up a level in the tower the language will have changed.
-
-Interesting case with `map`. Not a builtin in any store, Lives in emulated store of level-1 interpreter, meaning it's a variable in level.
-
-### Roadmap <a name="roadmap"></a>
-
-- Macros
-- Optimization
-  - Tail-call optimization
-- Quoted lists (?)
-    
-### Built-ins <a name="builtins"></a>
+### Built-ins
 
 | ......Name...... | Explanation  |
 |----------|---|
@@ -140,3 +139,10 @@ Interesting case with `map`. Not a builtin in any store, Lives in emulated store
 | `throw`   | `(throw OBJECT)` Throws exception. |
 | `fork`   | `(fork ANY)` Forks process, returns a reference to the process. |
 | `join`   | `(join PROCESS-REF)` Wait for process to return. |
+
+## Roadmap
+
+- Macros
+- Optimization
+  - Tail-call optimization
+- Quoted lists (?)

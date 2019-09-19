@@ -1,5 +1,4 @@
-Lisp interpreter in Lisp in Javascript
----
+# Interpreter Tower
 
 A port of the interpreter written in the interpreted lisp itself.
 
@@ -9,7 +8,7 @@ This makes it possible to manipulate the interpreter while its running. Going up
 
 Interesting case with `map`. Not a builtin in any store, Lives in emulated store of level-1 interpreter, meaning it's a variable in level.
 
-### Interpreter tower
+## Interpreter tower
 
 With `tower.js` the interpreter written in lisp can be nested (interpret itself) to a configurable amount of levels.
 
@@ -38,7 +37,7 @@ Moving down
 lisp-base> 
 ```
 
-#### Transform
+### Transform
 
 Easy to change the language by running `(defun transform (ast) (do-something-to-ast)))` in level below.
 Changing interpreter and language while running by using the transform hook:
@@ -53,7 +52,7 @@ lisp-2> (+ 5 4)
 lisp-2> 
 ```
 
-#### Tower functions
+### Tower functions
 
 Functions for using the tower:
 
