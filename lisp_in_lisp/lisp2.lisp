@@ -23,31 +23,6 @@
 ;;       acc
 ;;       (reduce (cdr list) (fun acc (car list)) fun)))
 
-;; (defun lookup (env key)
-
-;;   (let (env-pair (get-dict key env))
-;;     (if (eq? (length env-pair) 0)
-;;         (let (store-pair (get-dict key store))
-;;           (if (eq? (length store-pair) 0)
-;;               (progn
-;;                 (print (concat "Variable not bound: " key))
-;;                 (print "Moving up a meta level")
-;;                 (em '(em-cont)))
-;;               ;; (throw (concat "Variable not bound: " key))
-;;             (nth 1 store-pair)
-;;             )
-;;           )
-;;       (nth 1 env-pair))))
-
-
-;; Saner way to implement tower:
-;;  - Universal store with normal functions
-;;  - Each interpreter also has a store for interpreter specific stuff
-;;  - Uses tokenize, parse, and interpret from host interpreter.
-;;  - All the builtins dont need to be defined in this file either i think
-;; http://cs242.stanford.edu/f17/assets/projects/2017/stbarnes.pdf
-
-
 (defun interpret (ast env)
   (cons (interpret-exp (car ast) env store)
         (if (eq? (length (cdr ast)) 0)
@@ -62,12 +37,6 @@
       ;; )
       )
      )
-
-(defun repl (prompt)
-    (let (line (read prompt))
-      (if (eq? (length line) 0)
-          (repl prompt)
-        (repl prompt (print (car (interpret (parse (tokenize line)) (dict))))))))
 
 (defun run-program (src)
   (interpret (parse (tokenize (sanitize src))) (dict)))
