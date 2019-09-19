@@ -134,7 +134,7 @@ async function interpret_exp(ast, env) {
   } else {
     if (typeof ast === "string") {
       if (ast[0] === "'") {
-        return parse([ast.slice(1)])[0];
+        return ast.slice(1);
       } else if (ast[0] === "\"") {
         return ast.slice(1, ast.length-1);
       } else {
