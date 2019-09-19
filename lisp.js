@@ -99,36 +99,43 @@ function parse(lexemes) {
   return ast;
 }
 
-function lookup(env, store, key) {
+async function lookup(env, level_store, key) {
   if (env.hasOwnProperty(key)) {
-    return env[key];
+    return env[key];  
+  } else if (level_store.hasOwnProperty(key)) {
+    return level_store[key];
   } else {
-    if (store[key] === undefined) throw Error("Variable not bound: " + key);
-    return store[key];
+    // if (builtins[key] === undefined) throw Error("Variable not bound: " + key);
+    if (builtins[key] === undefined){
+      console.log("Variable not bound: " + key);
+      console.log("Moving up");
+      return await level_store["em-cont"]();
+    }
+    return builtins[key];
   }
 }
 
-async function interpret_exp(ast, env) {
+async function interpret_exp(ast, env, level_store) {
   if (Array.isArray(ast)) {
     const operator = ast[0];
-    const proc = lookup(env, store, operator);
+    const proc = await lookup(env, level_store, operator);
     // Special cases for operators that shouldn't have their arguments intepreted immediately.
     switch (operator) {
     case "if":
     case "match":
-      return proc([await interpret_exp(ast[1], env), ...ast.slice(2)], env);
+      return proc([await interpret_exp(ast[1], env, level_store), ...ast.slice(2)], env, level_store);
     case "let":
     case "lambda":
     case "defun":
     case "fork":
-      return proc(ast.slice(1), env);
+      return proc(ast.slice(1), env, level_store);
     default:
       const args = ast.slice(1);
       const results = []; 
       for (let i = 0; i < args.length; i++) {
-        results.push(await interpret_exp(args[i], env));
+        results.push(await interpret_exp(args[i], env, level_store));
       }
-      return await proc(results, env);
+      return await proc(results, env, level_store);
     }
     // TODO: tail call optimization
   } else {
@@ -138,7 +145,7 @@ async function interpret_exp(ast, env) {
       } else if (ast[0] === "\"") {
         return ast.slice(1, ast.length-1);
       } else {
-        return lookup(env, store, ast);
+        return await lookup(env, level_store, ast);
       }
     } else {
       return ast;
@@ -151,13 +158,15 @@ async function interpret(ast, env) {
   const results = [];
   for (let i = 0; i < ast.length; i++) {
     let exp = ast[i];
-    results.push(await interpret_exp(exp, env));
+    results.push(await interpret_exp(exp, env, store));
   }
 
   return results;
 }
 
-const store = {
+const store = {};
+
+const builtins = {
   "+": args => args.reduce((sum, arg) => arg+sum, 0),
   "-": args => args.length > 1 ? args.slice(1).reduce((sum, arg) => sum-arg, args[0]) : (-args[0]),
   "*": args => args.reduce((sum, arg) => sum*arg, 1),
@@ -165,7 +174,7 @@ const store = {
   "eq?": args => args[0] === args[1],
   "<": args => args[0] < args[1],
   ">": args => args[0] > args[1],
-  "if": (args, env) => args[0] ? interpret_exp(args[1], env) : interpret_exp(args[2], env),
+  "if": (args, env, level_store) => args[0] ? interpret_exp(args[1], env, level_store) : interpret_exp(args[2], env, level_store),
   "not": args => !args[0],
   "cons": args => (Array.isArray(args[1]) ? [args[0], ...args[1]] : [args[0], args[1]]),
   "list": args => args,
@@ -176,30 +185,30 @@ const store = {
     const pair = args[1].find(e => e[0] === args[0]);
     return pair || [];
   },
-  "set": args => {
-    store[args[0]] = args[1];
+  "set": (args, env, level_store) => {
+    level_store[args[0]] = args[1];
     return args[1];
   },
-  "defun": (args, env) => { // can be made as a macro expanding to set and lambda combined
-    store[args[0]] = store["lambda"](args.slice(1), env);
-    return store[args[0]];
+  "defun": (args, env, level_store) => { // can be made as a macro expanding to set and lambda combined
+    level_store[args[0]] = builtins["lambda"](args.slice(1), env, level_store);
+    return level_store[args[0]];
   },
-  "let": (args, env) => {
+  "let": (args, env, level_store) => {
     const [key, value] = args[0];
-    env = { ...env, [key]: interpret_exp(value, env) };
-    return interpret_exp(args[1], env);
+    env = { ...env, [key]: interpret_exp(value, env, level_store) };
+    return interpret_exp(args[1], env, level_store);
   },
-  "lambda": (args, env) => {
+  "lambda": (args, env, level_store) => {
     const [params, body_ast] = args;
     return lam_args => {
       for (let i = 0; i < params.length; ++i) {
         env = {...env, [params[i]]: lam_args[i]}; // bind args in env
       }
-      return interpret_exp(body_ast, env);
+      return interpret_exp(body_ast, env, level_store);
     };
   },
   "call": args => args[0](args.splice(1)),
-  "eval": (args, env) => interpret_exp(parse(tokenize(args[0]))[0], env),
+  "eval": (args, env, level_store) => interpret_exp(parse(tokenize(args[0]))[0], env, level_store),
   "progn": args => args[args.length-1],
   "print": args => console.log(args[0]),
   "req": args => {
@@ -212,14 +221,14 @@ const store = {
   },
   "read": args => readNext(args[0]),
   "file": args => fs.readFileSync(args[0], 'utf8'),
-  "match": async (args, env) => {
+  "match": async (args, env, level_store) => {
     const val = args[0];
     for (let i = 1; i < args.length-2; i+=2) {
-      if (val === await interpret_exp(args[i], env)) {
-        return interpret_exp(args[i+1], env);
+      if (val === await interpret_exp(args[i], env, level_store)) {
+        return interpret_exp(args[i+1], env, level_store);
       }
     }
-    return interpret_exp(args[args.length-1], env);
+    return interpret_exp(args[args.length-1], env, level_store);
   },
   "slice": args => args[2].slice(args[0], args[1]),
   "append": args => [...args[0], ...args[1]],
@@ -243,13 +252,17 @@ const store = {
 
   "throw": args => { throw new Error(args[0]);},
   // Concurrency, note: interpret_exp is an async function
-  "fork": (args, env) => interpret_exp(args[0], env),
+  "fork": (args, env, level_store) => interpret_exp(args[0], env, level_store),
   "join": (args, env) => args[0],
+
+  "tokenize": args => tokenize(args[0]),
+  "parse": args => parse(args[0]),
+  "interpret-exp": args => interpret_exp(args[0], args[1], args[2]),
 };
 
 // Read write stream
 
-const completes = Object.keys(store);
+const completes = Object.keys(builtins);
 
 function completer(linePartial, callback) {
   const hits = completes.filter((c) => ("(" + c).startsWith(linePartial));
