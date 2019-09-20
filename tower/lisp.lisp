@@ -29,15 +29,6 @@
             nil
           (interpret (cdr ast) env))))
 
-;; (set 'store
-;;      (dict
-;;       ;; (list
-;;       ;;  (list 'interpret-exp (lambda (args) (interpret-exp (car args) (nth 1 args) (nth 2 args))))
-;;       ;;  ;; (list 'eval (lambda (args env) (car (interpret (parse (tokenize (car args))) env store))))
-;;       ;; )
-;;       )
-;;      )
-
 (defun run-program (src)
   (interpret (parse (tokenize (sanitize src))) (dict)))
 
@@ -66,15 +57,8 @@
              (list
               (list 'em-cont (lambda () (em '(tower-repl (concat "lisp-" tower-level "> ")))))
               (list 'em (lambda (args) (eval args)))
-              ;; (list 'old-cont (lambda (args) (progn (set 'abort-repl true) args)))
               (list 'old-cont (lambda (args) (progn (set 'cont-value args) (set 'abort-repl true) "Moving down")))
               )))
-
-;; (defun old-cont (exp)
-;;   (progn
-;;     ;; (em '(set 'cont-value exp))
-;;     (em '(set 'abort-repl true)))
-;;   )
 
 (defun init-tower (level)
   (progn
