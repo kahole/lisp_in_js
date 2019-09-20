@@ -5,7 +5,7 @@ A port of the interpreter written in the interpreted hlisp itself.
 Because it can interpret itself, mutliple instances of the interpreter can be nested.
 This makes it possible to manipulate interpreters while they are running. Going up down a level in the tower the language will have changed.
 
-Interesting case with `map`. Not a builtin in any store, Lives in emulated store of level-1 interpreter, meaning it's a variable in level.
+<!-- Interesting case with `map`. Not a builtin in any store, Lives in emulated store of level-1 interpreter, meaning it's a variable in level. -->
 
 ## lisp.lisp vs lisp_full_port.lisp
 
@@ -95,5 +95,5 @@ Functions for using the tower:
 
 ### References
 
-[An Interpreted Scheme Dialect with a Reflective Tower](http://cs242.stanford.edu/f17/assets/projects/2017/stbarnes.pdf)
-[Collapsing Towers of Interpreters](http://lampwww.epfl.ch/~amin/pub/collapsing-towers.pdf)
+- [An Interpreted Scheme Dialect with a Reflective Tower](http://cs242.stanford.edu/f17/assets/projects/2017/stbarnes.pdf)
+- [Collapsing Towers of Interpreters](http://lampwww.epfl.ch/~amin/pub/collapsing-towers.pdf)
