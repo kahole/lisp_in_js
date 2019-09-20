@@ -68,6 +68,5 @@
           (print (car (run-program (concat " (init-tower " (- level 1) ")")))))
       (tower-repl (concat "lisp-" level "> ")))
     nil
-      ;; nil)
     )
   )
