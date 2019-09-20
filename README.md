@@ -25,7 +25,6 @@ Running lisp.js starts a REPL:
 
 ```lisp
 $ node lisp
-
 h> (if (not (eq? (+ (* 10 2) 20) 400)) 'apple 'orange)
 apple
 h> (let (k 3) (+ k 6))
