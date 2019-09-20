@@ -4,9 +4,7 @@
          "(" (concat (car chars) (token-quote (cdr chars) (+ level 1)))
          " " (if (eq? level 0) "" (concat (car chars) (token-quote (cdr chars) level)))
          ")" (if (eq? level 0) "" (concat (car chars) (token-quote (cdr chars) (- level 1))))
-         (concat (car chars) (token-quote (cdr chars) level))
-         )
-  )
+         (concat (car chars) (token-quote (cdr chars) level))))
 
 (set 'pruned 0)
 
@@ -15,9 +13,7 @@
   (match (car chars)
          "\"" (car chars)
          "\\" (progn (set 'pruned (+ pruned 1)) (concat (nth 1 chars) (token-string-literal (cdr (cdr chars)))))
-         (concat (car chars) (token-string-literal (cdr chars)))
-         )
-  )
+         (concat (car chars) (token-string-literal (cdr chars)))))
 
 (defun token (chars)
   (if (eq? (length chars) 0)
@@ -32,20 +28,18 @@
              (match (nth 1 chars)
                     ")" char
                     " " char
-                    (concat char (token (cdr chars)))
-                    )))))
+                    (concat char (token (cdr chars))))))))
 
 (defun tokenize (input)
 
   (progn (set 'pruned 0)
-  
-  (if (eq? (length input) 0)
-      nil
-    (let (tok (token input))
-      (if (eq? (length tok) 0)
-          (tokenize (substring 1 (length input) input))
-        (cons tok (tokenize (substring (+ (length tok) pruned) (length input) input)))
-        )))))
+         
+         (if (eq? (length input) 0)
+             nil
+           (let (tok (token input))
+             (if (eq? (length tok) 0)
+                 (tokenize (substring 1 (length input) input))
+               (cons tok (tokenize (substring (+ (length tok) pruned) (length input) input))))))))
 
 (defun end-lex-exp-length (lexemes depth count)
 
@@ -85,15 +79,12 @@
       (interpret-exp (car clauses) env)
     (if (eq? val (interpret-exp (car clauses) env))
         (interpret-exp (nth 1 clauses) env)
-      (for-match val (cdr (cdr clauses)) env)
-      )
-    )
-  )
+      (for-match val (cdr (cdr clauses)) env))))
 
 (defun reduce (list acc fun)
   (if (eq? (length list) 0)
       acc
-      (reduce (cdr list) (fun acc (car list)) fun)))
+    (reduce (cdr list) (fun acc (car list)) fun)))
 
 (defun lookup (env key)
 
@@ -104,11 +95,9 @@
               (progn
                 (print (concat "Variable not bound: " key))
                 (print "Moving up a meta level")
-                (em '(em-cont)))
-              ;; (throw (concat "Variable not bound: " key))
-            (nth 1 store-pair)
-            )
-          )
+                (em '(tower-repl (concat "lisp-" tower-level "> "))))
+            ;; (throw (concat "Variable not bound: " key))
+            (nth 1 store-pair)))
       (nth 1 env-pair))))
 
 (defun interpret-exp (ast env)
@@ -134,10 +123,7 @@
                  (eq? (substring 0 1 ast) "'") (substring 1 (length ast) ast)
                  (eq? (substring 0 1 ast) "\"") (substring 1 (- (length ast) 1) ast)
                  (lookup env ast))
-        ast
-        )
-      )
-    ))
+        ast))))
 
 (defun interpret (ast env)
   (cons (interpret-exp (car ast) env)
@@ -178,9 +164,7 @@
        (list 'let (lambda (args env)
                     (let (key (car (car args)))
                       (let (val (interpret-exp (nth 1 (car args)) env))
-                        (interpret-exp (nth 1 args) (put-dict (list key val) env))
-                        ))
-                    ))
+                        (interpret-exp (nth 1 args) (put-dict (list key val) env))))))
 
        (list 'lambda (lambda (args env)
                   (lambda (lam-args)
@@ -200,8 +184,7 @@
        (list 'file (lambda (args) (file (car args))))
 
        (list 'match (lambda (args env)
-                      (for-match (car args) (cdr args) env)
-                      ))
+                      (for-match (car args) (cdr args) env)))
 
        (list 'slice (lambda (args) (slice (car args) (nth 1 args) (nth 2 args))))
        (list 'append (lambda (args) (append (car args) (nth 1 args))))
@@ -232,10 +215,10 @@
        )))
 
 (defun repl (prompt)
-    (let (line (read prompt))
-      (if (eq? (length line) 0)
-          (repl prompt)
-        (repl prompt (print (car (interpret (parse (tokenize line)) (dict))))))))
+  (let (line (read prompt))
+    (if (eq? (length line) 0)
+        (repl prompt)
+      (repl prompt (print (car (interpret (parse (tokenize line)) (dict))))))))
 
 (defun run-program (src)
   (interpret (parse (tokenize (sanitize src))) (dict)))
@@ -247,7 +230,7 @@
   (if abort-repl
       (progn
         (set 'abort-repl false)
-        contd-value)
+        cont-value)
     (let (line (read prompt))
       (if (eq? (length line) 0)
           (tower-repl prompt)
@@ -259,26 +242,20 @@
 ;; old-cont
 (set 'abort-repl false)
 
-(set 'store (put-dict
-             (list 'old-cont (lambda (args) (progn (set 'abort-repl true) (set 'contd-value (eval (car args))) "Moving down")))
-             store))
+(set 'store (merge-dict (dict
+                         (list
+                          (list 'em-cont (lambda () (em '(tower-repl (concat "lisp-" tower-level "> ")))))
+                          (list 'em (lambda (args) (eval (car args))))
+                          (list 'old-cont (lambda (args) (progn (set 'cont-value (car args)) (set 'abort-repl true) "Moving down")))
+                          )) store))
 
-;; Execute meta - Call eval from emulated store to execute in interpreter above.
-(defun em (exp)
-  (call (lookup (dict) 'eval) (list exp) (dict)))
-
-(defun em-cont ()
-  (tower-repl (concat "lisp-" tower-level "> ")))
-
-(defun init-tower (level max-level)
+(defun init-tower (level)
   (progn
     (set 'tower-level level)
-    (if (< level max-level)
+    (if (> level 0)
         ;; Load next interpreter
         (progn
-          (run-program (file "lisp_port.lisp"))
-          (print (car (run-program (concat " (init-tower " (+ level 1) " " max-level ")")))))
-      nil)
-    (tower-repl (concat "lisp-" level "> "))
-    )
-  )
+          (run-program (file "lisp_full_port.lisp"))
+          (print (car (run-program (concat " (init-tower " (- level 1) ")")))))
+      (tower-repl (concat "lisp-" level "> ")))
+    nil))
