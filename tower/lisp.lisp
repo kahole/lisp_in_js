@@ -46,7 +46,9 @@
 
 (defun tower-repl (prompt)
   (if abort-repl
-      (set 'abort-repl false)
+      (progn
+        (set 'abort-repl false)
+        cont-value)
     (let (line (read prompt))
       (if (eq? line "quit")
           nil
@@ -62,12 +64,17 @@
 
 (set 'store (dict
              (list
-              (list 'em-cont (lambda (args) (em '(tower-repl (concat "lisp-" tower-level "> ")))))
+              (list 'em-cont (lambda () (em '(tower-repl (concat "lisp-" tower-level "> ")))))
               (list 'em (lambda (args) (eval args)))
+              ;; (list 'old-cont (lambda (args) (progn (set 'abort-repl true) args)))
+              (list 'old-cont (lambda (args) (progn (set 'cont-value args) (set 'abort-repl true) "Moving down")))
               )))
 
-(defun old-cont ()
-  (em '(set 'abort-repl true)))
+;; (defun old-cont (exp)
+;;   (progn
+;;     ;; (em '(set 'cont-value exp))
+;;     (em '(set 'abort-repl true)))
+;;   )
 
 (defun init-tower (level)
   (progn

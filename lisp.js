@@ -106,9 +106,8 @@ async function lookup(env, level_store, key) {
     // if (builtins[key] === undefined) throw Error("Variable not bound: " + key);
     if (builtins[key] === undefined){
       console.log("Variable not bound: " + key);
-      // console.log("Moving up");
-      // level_store["abort-repl"] = true;
-      return undefined;
+      console.log("Moving up");
+      return await level_store["em-cont"]();
     }
     return builtins[key];
   }
