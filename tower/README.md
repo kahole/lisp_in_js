@@ -40,6 +40,30 @@ Moving down
 lisp-0>
 ```
 
+```lisp
+lisp-0> (em '(em '(set 'y 77)))
+77
+lisp-0> y
+Variable not bound: y
+Moving up
+lisp-1> y
+Variable not bound: y
+Moving up
+lisp-2> y
+77
+lisp-2> (old-cont y)
+Moving down
+77
+lisp-1> (old-cont y)
+Variable not bound: y
+Moving up
+lisp-2> (old-cont y)
+Moving down
+Moving down
+77
+lisp-0>
+```
+
 ### Transform
 
 Easy to change the language by running `(defun transform (ast) (do-something-to-ast)))` in level below.
