@@ -11,11 +11,11 @@ fs.readFile(interpreter_path, function (err, data) {
   const max_level = process.argv[2] ? process.argv[2]-1 : 2;
   
   const interpreter_src = data.toString();
-  const level = 0;
+  const level = max_level;
 
-  if (level < max_level) {
+  if (level > 0) {
     run(interpreter_src)
-      .then(() => run(`(init-tower ${level+1} ${max_level})`))
+      .then(() => run(`(init-tower ${level-1})`))
       .then((res) => {
         console.log(res[0]);
         repl("lisp-base> ");

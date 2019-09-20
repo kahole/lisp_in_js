@@ -1,13 +1,17 @@
-# (Reflective) (Interpreter) Tower
+# Reflective (Interpreter) Tower
 
-A port of the interpreter written in the interpreted lisp itself.
+A port of the interpreter written in the interpreted hlisp itself.
 
-Because it can interpret itself, you can nest mutliple instances of the interpreter.
-This makes it possible to manipulate the interpreter while its running. Going up a level in the tower the language will have changed.
+Because it can interpret itself, mutliple instances of the interpreter can be nested.
+This makes it possible to manipulate interpreters while they are running. Going up down a level in the tower the language will have changed.
 
 Interesting case with `map`. Not a builtin in any store, Lives in emulated store of level-1 interpreter, meaning it's a variable in level.
 
 ## lisp.lisp vs lisp_full_port.lisp
+
+self-interpreter
+
+[meta-circular interpreter](https://en.wikipedia.org/wiki/Meta-circular_evaluator)
 
 ## Interpreter tower
 
@@ -60,5 +64,11 @@ Functions for using the tower:
 | Function |   |
 |----------|---|
 | `em`      | `(em QUOTATION)` Execute-meta. Executes quoted code on the interpreter level above. |
-| `em-cont`      | `(em-cont)` Execute-meta-continue. Runs the repl for the interpreter level above. |
+| `em-cont`      | `(em-cont)` Execute-meta-continue. Continues the repl for the interpreter level above. |
 | `old-cont`      | `(old-cont QUOTATION)` Executes quoted code on the interpreter level below. And continues execution at that level. |
+
+
+### References
+
+[An Interpreted Scheme Dialect with a Reflective Tower](http://cs242.stanford.edu/f17/assets/projects/2017/stbarnes.pdf)
+[Collapsing Towers of Interpreters](http://lampwww.epfl.ch/~amin/pub/collapsing-towers.pdf)

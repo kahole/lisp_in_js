@@ -1,8 +1,8 @@
 # Lisp interpreter in Javascript
 
-`lisp.js` is an interpreter capable of running a custom dialect of lisp called h-lisp.
+`lisp.js` is an interpreter capable of running a dialect of elisp called hlisp.
 
-The folder `tower` contains a port of the h-lisp-interpreter written in h-lisp and a program for constructing a recursive interpreter tower.
+The folder `tower` contains a port of the hlisp-interpreter written in hlisp and a program for constructing a recursive interpreter tower.
 
 ## Contents
 - [Interpreter tower](#interpreter-tower)
@@ -20,7 +20,7 @@ Full readme about the `lisp-in-lisp` port of the interpreter written in the inte
 [Lisp in lisp](tower/)
 
 Because it can interpret itself, mutliple instances of the interpreter can be nested.
-This makes it possible to manipulate the interpreter while its running. Going up a level in the tower the language will have changed.
+This makes it possible to manipulate interpreters while they are running. Going down a level in the tower the language will have changed.
 
 Interesting case with `map`. Not a builtin in any store, Lives in emulated store of level-1 interpreter, meaning it's a variable in level.
 

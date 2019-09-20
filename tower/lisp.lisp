@@ -29,14 +29,14 @@
             nil
           (interpret (cdr ast) env))))
 
-(set 'store
-     (dict
-      ;; (list
-      ;;  (list 'interpret-exp (lambda (args) (interpret-exp (car args) (nth 1 args) (nth 2 args))))
-      ;;  ;; (list 'eval (lambda (args env) (car (interpret (parse (tokenize (car args))) env store))))
-      ;; )
-      )
-     )
+;; (set 'store
+;;      (dict
+;;       ;; (list
+;;       ;;  (list 'interpret-exp (lambda (args) (interpret-exp (car args) (nth 1 args) (nth 2 args))))
+;;       ;;  ;; (list 'eval (lambda (args env) (car (interpret (parse (tokenize (car args))) env store))))
+;;       ;; )
+;;       )
+;;      )
 
 (defun run-program (src)
   (interpret (parse (tokenize (sanitize src))) (dict)))
@@ -46,9 +46,7 @@
 
 (defun tower-repl (prompt)
   (if abort-repl
-      (progn
-        (set 'abort-repl false)
-        contd-value)
+      (set 'abort-repl false)
     (let (line (read prompt))
       (if (eq? line "quit")
           nil
@@ -62,26 +60,25 @@
 ;; old-cont
 (set 'abort-repl false)
 
-(set 'store (put-dict
-             (list 'old-cont (lambda (args) (progn (set 'abort-repl true) (set 'contd-value (eval args)) "Moving down")))
-             ))
+(set 'store (dict
+             (list
+              (list 'em-cont (lambda (args) (em '(tower-repl (concat "lisp-" tower-level "> ")))))
+              (list 'em (lambda (args) (eval args)))
+              )))
 
-;; Execute meta
-(defun em (exp)
-  (car (interpret (transform (parse (tokenize exp))) (dict))))
+(defun old-cont ()
+  (em '(set 'abort-repl true)))
 
-(defun em-cont ()
-  (tower-repl (concat "lisp-" tower-level "> ")))
-
-(defun init-tower (level max-level)
+(defun init-tower (level)
   (progn
     (set 'tower-level level)
-    (if (< level max-level)
+    (if (> level 0)
         ;; Load next interpreter
         (progn
           (run-program (file "lisp.lisp"))
-          (print (car (run-program (concat " (init-tower " (+ level 1) " " max-level ")")))))
-      nil)
-    (tower-repl (concat "lisp-" level "> "))
+          (print (car (run-program (concat " (init-tower " (- level 1) ")")))))
+      (tower-repl (concat "lisp-" level "> ")))
+    nil
+      ;; nil)
     )
   )
