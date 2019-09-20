@@ -55,8 +55,7 @@
              (list
               (list 'em-cont (lambda () (em '(tower-repl (concat "lisp-" tower-level "> ")))))
               (list 'em (lambda (args) (eval args)))
-              (list 'old-cont (lambda (args) (progn (set 'cont-value args) (set 'abort-repl true) "Moving down")))
-              )))
+              (list 'old-cont (lambda (args) (progn (set 'cont-value args) (set 'abort-repl true) "Moving down"))))))
 
 (defun init-tower (level)
   (progn
@@ -67,6 +66,4 @@
           (run-program (file "lisp.lisp"))
           (print (car (run-program (concat " (init-tower " (- level 1) ")")))))
       (tower-repl (concat "lisp-" level "> ")))
-    nil
-    )
-  )
+    nil))
