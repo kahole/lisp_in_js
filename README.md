@@ -1,4 +1,4 @@
-# Lisp Interpreter and Reflective Tower in JS
+# Lisp and Reflective Tower in JS
 
 `lisp.js` is an interpreter capable of running a dialect of elisp called hlisp.
 
