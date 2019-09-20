@@ -31,7 +31,6 @@ With `tower.js` the interpreter written in lisp can be nested (interpret itself)
 Example usage:
 ```lisp
 node tower 5
-lisp-0>
 lisp-0> (em-cont)
 lisp-1>
 lisp-1> (old-cont nil)
@@ -49,36 +48,42 @@ lisp-1> y
 lisp-1> (old-cont y)
 Moving down
 77
+lisp-0> (em '(em '(set 'x 14)))
+14
+lisp-0> x
+Variable not bound: x
+Moving up
+lisp-1> x
+Variable not bound: x
+Moving up
+lisp-2> x
+14
+lisp-2> (old-cont x)
+Moving down
+14
+lisp-1> (old-cont x)
+Variable not bound: x
+Moving up
+lisp-2> (old-cont x)
+Moving down
+Moving down
+14
 lisp-0>
-```
-
-```lisp
-lisp-0> (em '(em '(set 'y 77)))
-77
-lisp-0> y
-Variable not bound: y
+lisp-0> (plus 2 4)
+Variable not bound: plus
 Moving up
-lisp-1> y
-Variable not bound: y
-Moving up
-lisp-2> y
-77
-lisp-2> (old-cont y)
+lisp-1> (old-cont +)
 Moving down
-77
-lisp-1> (old-cont y)
-Variable not bound: y
-Moving up
-lisp-2> (old-cont y)
-Moving down
-Moving down
-77
+6
 lisp-0>
 ```
 
 ## Transform
 
-Easy to change the language by running `(defun transform (ast) (do-something-to-ast)))` in level below.
+In the `lisp.lisp` an extra function `transform` is used between the `parse` and `interpret` function calls.
+By default it's an identity function returning an unmodified AST.
+It makes it easy to change the language without messing with the parse function.
+
 Changing interpreter and language while running by using the transform hook:
 ```lisp
 lisp-0> (em-cont)
