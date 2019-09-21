@@ -65,7 +65,23 @@
               (list 'em-cont (lambda ()
                                (progn
                                  (if (eq? em nil)
-                                     "No more meta levels above"
+                                     (progn
+                                       "No more meta levels above"
+                                       (let (old-store-pair (get-dict 'store store))
+                                         (progn
+                                           (let (new-store (run-program (file "tower/lisp.lisp")))
+                                             (put-dict old-store-pair new-store)
+                                             )
+                                           (let (new-tower-level tower-level)
+                                             (progn
+                                               (set 'tower-level (+ tower-level 1))
+                                               (run-program (concat "(set 'tower-level " new-tower-level ")"))
+                                               (car (run-program (concat "(tower-repl \"exlisp-" new-tower-level "> \")")))
+                                               )
+                                           )
+                                           )
+                                         )
+                                       )
                                  (em '(tower-repl (concat "lisp-" tower-level "> "))))))
                     )
               (list 'em (lambda (args) (eval args)))
@@ -78,6 +94,8 @@
         ;; Load next interpreter
         (progn
           (run-program (file "tower/lisp.lisp"))
-          (print (car (run-program (concat " (init-tower " (- level 1) ")")))))
+          (print (car (run-program (concat "(init-tower " (- level 1) ")")))))
       (tower-repl (concat "lisp-" level "> ")))
     nil))
+
+store
