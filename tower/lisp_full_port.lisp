@@ -94,7 +94,7 @@
           (if (eq? (length store-pair) 0)
               (progn
                 (print (concat "Variable not bound: " key))
-                (print "Moving up a meta level")
+                (print "Moving up")
                 ;; NB! Interpreters below are not able to call functions returned from meta correctly.
                 ;; Because of the way list of args are applied in each interpreter, making them nested in each level.
                 (em '(tower-repl (concat "lisp-" tower-level "> "))))

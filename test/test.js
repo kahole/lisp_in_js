@@ -72,13 +72,11 @@ macro.title = (providedTitle = '') => `${providedTitle}`.trim();
 
    test(qualifier + "Nested let expression with addition", macro, interpret_func, "(let (k 3) (let (m 7) (+ k m)))", 10);
 
-   test(qualifier + "Defun and call function with strings", macro, interpret_func, `(progn (defun add-hello (str) (concat str "hello")) (add-hello "test"))`, "testhello");
+   test(qualifier + "Defun and call function with strings", macro, interpret_func, `(progn (defun add-greeting (str) (concat str "hello")) (add-greeting "test"))`, "testhello");
 
+    test(qualifier + "String double-quote", macro, interpret_string, `(concat "\\\"" "\\\"")`, `""`);
 
  });
-
-
-test("Lisp-0> " + "String double-quote", macro, interpret_string, `(concat "\\\"" "\\\"")`, `""`);
 
 
 // const strs = '\\"\\\\\\"\\" \\"\\\\\\"\\"';

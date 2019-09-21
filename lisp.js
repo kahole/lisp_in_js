@@ -111,11 +111,7 @@ async function lookup(env, level_store, key) {
     if (builtins[key] === undefined){
       console.log("Variable not bound: " + key);
       console.log("Moving up");
-      try {
-        return await level_store["em-cont"]();
-      } catch (e) {
-        throw Error("Variable not bound: " + key);
-      }
+      return await level_store["em-cont"]();
     }
     return builtins[key];
   }
