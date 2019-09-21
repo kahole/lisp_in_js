@@ -51,6 +51,15 @@
 ;; old-cont
 (set 'abort-repl false)
 
+;; TODO.
+;;   implement infinite tower here in lisp.
+;;   last em-cont / em should spawn new
+;;      and place store in between
+;;   tmp = level_store.store
+;;   new_store = new Store()
+;;   level_store .store = new_store
+;;   new_store.store = tmp
+
 (set 'store (dict
              (list
               (list 'em-cont (lambda () (em '(tower-repl (concat "lisp-" tower-level "> ")))))
