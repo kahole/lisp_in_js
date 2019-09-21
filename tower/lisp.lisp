@@ -67,21 +67,21 @@
                                  (if (eq? em nil)
                                      (progn
                                        "No more meta levels above"
-                                       (let (old-store-pair (get-dict 'store store))
-                                         (progn
-                                           (let (new-store (run-program (file "tower/lisp.lisp")))
-                                             (put-dict old-store-pair new-store)
-                                             )
-                                           ;; Virker ikke på grunn av implisitt linking av interpreterene gjennom rekursjon!
-                                           (let (new-tower-level tower-level)
-                                             (progn
-                                               (set 'tower-level (+ tower-level 1))
-                                               (run-program (concat "(set 'tower-level " new-tower-level ")"))
-                                               (car (run-program (concat "(tower-repl \"exlisp-" new-tower-level "> \")")))
-                                               )
-                                           )
-                                           )
-                                         )
+                                       ;; (let (old-store-pair (get-dict 'store store))
+                                       ;;   (progn
+                                       ;;     (let (new-store (run-program (file "tower/lisp.lisp")))
+                                       ;;       (put-dict old-store-pair new-store)
+                                       ;;       )
+                                       ;;     ;; Virker ikke på grunn av implisitt linking av interpreterene gjennom rekursjon!
+                                       ;;     (let (new-tower-level tower-level)
+                                       ;;       (progn
+                                       ;;         (set 'tower-level (+ tower-level 1))
+                                       ;;         (run-program (concat "(set 'tower-level " new-tower-level ")"))
+                                       ;;         (car (run-program (concat "(tower-repl \"exlisp-" new-tower-level "> \")")))
+                                       ;;         )
+                                       ;;     )
+                                       ;;     )
+                                       ;;   )
                                        )
                                  (em '(tower-repl (concat "lisp-" tower-level "> "))))))
                     )
