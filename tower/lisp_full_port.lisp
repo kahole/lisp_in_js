@@ -256,7 +256,7 @@
     (if (> level 0)
         ;; Load next interpreter
         (progn
-          (run-program (file "lisp_full_port.lisp"))
+          (run-program (file "tower/lisp_full_port.lisp"))
           (print (car (run-program (concat " (init-tower " (- level 1) ")")))))
       (tower-repl (concat "lisp-" level "> ")))
     nil))
