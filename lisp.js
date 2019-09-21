@@ -101,6 +101,8 @@ function parse(lexemes) {
   return ast;
 }
 
+const NIL = [];
+
 async function lookup(env, level_store, key) {
   if (env.hasOwnProperty(key)) {
     return env[key];  
@@ -110,8 +112,12 @@ async function lookup(env, level_store, key) {
     // if (builtins[key] === undefined) throw Error("Variable not bound: " + key);
     if (builtins[key] === undefined){
       console.log("Variable not bound: " + key);
-      console.log("Moving up");
-      return await level_store["em-cont"]();
+      try {
+        console.log("Moving up");
+        return await level_store["em-cont"]();
+      } catch (e) {
+        return NIL;
+      }
     }
     return builtins[key];
   }
@@ -185,7 +191,7 @@ const builtins = {
   "length": args => args[0].length,
   "assoc": args => {
     const pair = args[1].find(e => e[0] === args[0]);
-    return pair || [];
+    return pair || NIL;
   },
   "set": (args, env, level_store) => {
     level_store[args[0]] = args[1];
@@ -236,7 +242,7 @@ const builtins = {
   "append": args => [...args[0], ...args[1]],
   "nth": args => args[1][args[0]],
   "flat-length": args => args[0].flat().length,
-  "nil": [],
+  "nil": NIL,
   "infer-type": args => parse_symbol(args[0]),
   "type": args => typeof args[0],
   "is-list": args => Array.isArray(args[0]),
@@ -249,7 +255,7 @@ const builtins = {
   // Dictionaries, replacement for proper assoc list implementation
   "dict": args => args.length ? args[0].reduce( (acc, [key, value]) => { acc[key] = value; return acc; }, {}) : {},
   "put-dict": args => Object.assign({}, args[1], {[args[0][0]]: args[0][1]}),
-  "get-dict": args => args[1].hasOwnProperty(args[0]) ? ([args[0], args[1][args[0]]]) : [],
+  "get-dict": args => args[1].hasOwnProperty(args[0]) ? ([args[0], args[1][args[0]]]) : NIL,
   "merge-dict": args => Object.assign({}, args[1], args[0]),
 
   "throw": args => { throw new Error(args[0]);},
