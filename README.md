@@ -110,6 +110,14 @@ self-interpreter
 
 [meta-circular interpreter](https://en.wikipedia.org/wiki/Meta-circular_evaluator)
 
+Lightweight interpreter:
+Universal store "builtins" contains default definitions defined in the host interpreter.
+Interpreter specific stores: "level store"
+
+Each interpreter is still interpreted by the level above, but if an interpreter hasn't explicitly defined a function....
+
+like in footnote paper 1
+
 ## Tower functions
 
 Functions for using the tower:
