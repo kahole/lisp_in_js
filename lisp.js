@@ -20,6 +20,21 @@ function tokenize(input) {
     return b;
   };
 
+  let lex_matcher = match(
+    "(", c => lexemes.push(c),
+    " ", c => (lex_builder.length === 0 ? null : lexemes.push(pop_lex_builder())),
+    ")", c => [lex_builder.length === 0 ? null : lexemes.push(pop_lex_builder()), lexemes.push(c)],
+    "'", c => {
+      quote_level = 1;
+      lex_builder += c;
+    },
+    "\"", c => {
+      is_string_literal = true;
+      lex_builder += c;
+    },
+    c => { lex_builder += c; }
+  );
+
   for (let i = 0; i < input.length; i++){
     const c = input[i];
 
@@ -49,20 +64,7 @@ function tokenize(input) {
       continue;
     }
 
-    match(
-      "(", c => lexemes.push(c),
-      " ", c => (lex_builder.length === 0 ? null : lexemes.push(pop_lex_builder())),
-      ")", c => [lex_builder.length === 0 ? null : lexemes.push(pop_lex_builder()), lexemes.push(c)],
-      "'", c => {
-        quote_level = 1;
-        lex_builder += c;
-      },
-      "\"", c => {
-        is_string_literal = true;
-        lex_builder += c;
-      },
-      c => { lex_builder += c; }
-    )(c);
+    lex_matcher(c);
   }
 
   if (lex_builder.length > 0)
@@ -85,14 +87,16 @@ function parse_symbol(s) {
 
 function parse(lexemes) {
   const ast = [];
-
   let popout = false;
+
+  let parse_matcher = match(
+    "(", l => ast.push(parse(lexemes)),
+    ")", l => { popout = true; },
+    l => ast.push(parse_symbol(l))
+  );
+  
   while (lexemes.length > 0 && !popout) {
-    match(
-      "(", l => ast.push(parse(lexemes)),
-      ")", l => { popout = true; },
-      l => ast.push(parse_symbol(l))
-    )(lexemes.shift());
+    parse_matcher(lexemes.shift());
   }
   return ast;
 }
@@ -107,7 +111,11 @@ async function lookup(env, level_store, key) {
     if (builtins[key] === undefined){
       console.log("Variable not bound: " + key);
       console.log("Moving up");
-      return await level_store["em-cont"]();
+      try {
+        return await level_store["em-cont"]();
+      } catch (e) {
+        throw Error("Variable not bound: " + key);
+      }
     }
     return builtins[key];
   }
