@@ -70,6 +70,7 @@
                                        ;; (let (old-store-pair (get-dict 'store store))
                                        ;;   (progn
                                        ;;     (let (new-store (run-program (file "tower/lisp.lisp")))
+                                       ;;       ;; Denne gjør ingengting: men hjelper ikke fikse det pga det under..
                                        ;;       (put-dict old-store-pair new-store)
                                        ;;       )
                                        ;;     ;; Virker ikke på grunn av implisitt linking av interpreterene gjennom rekursjon!
