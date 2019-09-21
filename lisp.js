@@ -260,6 +260,8 @@ const builtins = {
   "tokenize": args => tokenize(args[0]),
   "parse": args => parse(args[0]),
   "interpret-exp": args => interpret_exp(args[0], args[1], args[2]),
+
+  "load": args => interpret(parse(tokenize(sanitize(builtins["file"](args)))), {}),
 };
 
 // Read write stream
