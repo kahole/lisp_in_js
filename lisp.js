@@ -255,6 +255,7 @@ const builtins = {
   // Dictionaries, replacement for proper assoc list implementation
   "dict": args => args.length ? args[0].reduce( (acc, [key, value]) => { acc[key] = value; return acc; }, {}) : {},
   "put-dict": args => Object.assign({}, args[1], {[args[0][0]]: args[0][1]}),
+  "put-dict-destructive": args => {args[1][args[0][0]] = args[0][1];},
   "get-dict": args => args[1].hasOwnProperty(args[0]) ? ([args[0], args[1][args[0]]]) : NIL,
   "merge-dict": args => Object.assign({}, args[1], args[0]),
 
@@ -268,6 +269,8 @@ const builtins = {
   "interpret-exp": args => interpret_exp(args[0], args[1], args[2]),
 
   "load": args => interpret(parse(tokenize(sanitize(builtins["file"](args)))), {}),
+
+  // "em": (args, env, level_store) => console.log("NO MORE META LEVELS"),
 };
 
 // Read write stream

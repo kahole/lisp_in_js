@@ -53,12 +53,33 @@
 
 (set 'store (dict
              (list
+              ;; denne hjelper heller ikke for problemet under
+              ;; (list 'interpret-exp (lambda (args env level-store) (progn (print "int_exp") (interpret-exp args env level-store))))
               (list 'em-cont (lambda ()
                                (progn
                                  (if (eq? em nil)
-                                     "No more meta levels above"
-                                 (em '(tower-repl (concat "lisp-" tower-level "> "))))))
-                    )
+                                     ;; (progn
+                                       "No more meta levels above"
+                                       ;; (let (old-store-pair (get-dict 'store store))
+                                       ;;   (progn
+                                       ;;     (let (new-store (nth 7 (run-program (file "tower/lisp.lisp"))))
+                                       ;;       ;; Denne gjør ingengting: men hjelper ikke fikse det pga det under..
+                                       ;;       (put-dict-destructive old-store-pair new-store)
+                                       ;;       )
+                                       ;;     ;; Virker ikke på grunn av implisitt linking av interpreterene gjennom rekursjon!
+                                       ;;     (let (new-tower-level (+ tower-level 1))
+                                       ;;       (progn
+                                       ;;         ;; (set 'tower-level (+ tower-level 1))
+                                       ;;         (run-program (concat "(set 'tower-level " new-tower-level ")"))
+                                       ;;         (car (run-program (concat "(tower-repl \"exlisp-" new-tower-level "> \")")))
+                                       ;;         )
+                                       ;;     )
+                                       ;;     )
+                                       ;;   )
+                                       ;; )
+                                   (em '(tower-repl (concat "lisp-" tower-level "> ")))
+                                   )
+                                 )))
               (list 'em (lambda (args) (eval args)))
               (list 'old-cont (lambda (args) (progn (set 'cont-value args) (set 'abort-repl true) "Moving down"))))))
 
