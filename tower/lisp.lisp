@@ -51,39 +51,12 @@
 ;; old-cont
 (set 'abort-repl false)
 
-;; TODO.
-;;   implement infinite tower here in lisp.
-;;   last em-cont / em should spawn new
-;;      and place store in between
-;;   tmp = level_store.store
-;;   new_store = new Store()
-;;   level_store .store = new_store
-;;   new_store.store = tmp
-
 (set 'store (dict
              (list
               (list 'em-cont (lambda ()
                                (progn
                                  (if (eq? em nil)
-                                     (progn
-                                       "No more meta levels above"
-                                       ;; (let (old-store-pair (get-dict 'store store))
-                                       ;;   (progn
-                                       ;;     (let (new-store (run-program (file "tower/lisp.lisp")))
-                                       ;;       ;; Denne gjør ingengting: men hjelper ikke fikse det pga det under..
-                                       ;;       (put-dict old-store-pair new-store)
-                                       ;;       )
-                                       ;;     ;; Virker ikke på grunn av implisitt linking av interpreterene gjennom rekursjon!
-                                       ;;     (let (new-tower-level tower-level)
-                                       ;;       (progn
-                                       ;;         (set 'tower-level (+ tower-level 1))
-                                       ;;         (run-program (concat "(set 'tower-level " new-tower-level ")"))
-                                       ;;         (car (run-program (concat "(tower-repl \"exlisp-" new-tower-level "> \")")))
-                                       ;;         )
-                                       ;;     )
-                                       ;;     )
-                                       ;;   )
-                                       )
+                                     "No more meta levels above"
                                  (em '(tower-repl (concat "lisp-" tower-level "> "))))))
                     )
               (list 'em (lambda (args) (eval args)))
