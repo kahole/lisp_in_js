@@ -315,5 +315,8 @@ module.exports = {
   parse,
   interpret,
   repl,
-  run: src => interpret(parse(tokenize(sanitize(src))), {})
+  run: src => interpret(parse(tokenize(sanitize(src))), {}),
+  readNext,
+  interpret_exp,
+  builtins
 };
