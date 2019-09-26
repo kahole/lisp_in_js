@@ -1,3 +1,4 @@
+
 # Reflective Tower
 
 `tower/lisp.lisp` is port of the interpreter written in the interpreted hlisp itself.
@@ -14,6 +15,14 @@ self-interpreter
 
 [meta-circular interpreter](https://en.wikipedia.org/wiki/Meta-circular_evaluator)
 
+Lightweight interpreter:
+Universal store "builtins" contains default definitions defined in the host interpreter.
+Interpreter specific stores: "level store"
+
+Each interpreter is still interpreted by the level above, but if an interpreter hasn't explicitly defined a function....
+
+like in footnote paper 1
+
 ## Tower functions
 
 Functions for using the tower:
@@ -26,11 +35,14 @@ Functions for using the tower:
 
 ## Tower usage
 
-With `tower.js` the interpreter written in lisp can be nested (interpret itself) to a configurable amount of levels.
+The interpreter written in lisp can be nested (interpret itself) to a configurable amount of levels.
 
 Example usage:
 ```lisp
-node tower 5
+node lisp
+h>
+h> (load "tower/lisp.lisp")
+h> (init-tower 5)
 lisp-0> (em-cont)
 lisp-1>
 lisp-1> (old-cont nil)

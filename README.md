@@ -130,11 +130,14 @@ Functions for using the tower:
 
 ## Tower usage
 
-With `tower.js` the interpreter written in lisp can be nested (interpret itself) to a configurable amount of levels.
+The interpreter written in lisp can be nested (interpret itself) to a configurable amount of levels.
 
 Example usage:
 ```lisp
-node tower 5
+node lisp
+h>
+h> (load "tower/lisp.lisp")
+h> (init-tower 5)
 lisp-0> (em-cont)
 lisp-1>
 lisp-1> (old-cont nil)
