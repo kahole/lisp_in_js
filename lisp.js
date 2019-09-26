@@ -114,7 +114,8 @@ async function lookup(env, level_store, key) {
       console.log("Variable not bound: " + key);
       try {
         console.log("Moving up");
-        return await level_store["em-cont"]();
+        // return await level_store["em-cont"]();
+        return NIL;
       } catch (e) {
         return NIL;
       }
@@ -161,12 +162,12 @@ async function interpret_exp(ast, env, level_store) {
   }
 }
 
-async function interpret(ast, env) {
+async function interpret(ast, env, level_store) {
 
   const results = [];
   for (let i = 0; i < ast.length; i++) {
     let exp = ast[i];
-    results.push(await interpret_exp(exp, env, store));
+    results.push(await interpret_exp(exp, env, level_store));
   }
 
   return results;
@@ -258,6 +259,7 @@ const builtins = {
   "put-dict-destructive": args => {args[1][args[0][0]] = args[0][1];},
   "get-dict": args => args[1].hasOwnProperty(args[0]) ? ([args[0], args[1][args[0]]]) : NIL,
   "merge-dict": args => Object.assign({}, args[1], args[0]),
+  "copy": args => Object.assign({}, args[0]),
 
   "throw": args => { throw new Error(args[0]);},
   // Concurrency, note: interpret_exp is an async function
@@ -268,9 +270,22 @@ const builtins = {
   "parse": args => parse(args[0]),
   "interpret-exp": args => interpret_exp(args[0], args[1], args[2]),
 
-  "load": args => interpret(parse(tokenize(sanitize(builtins["file"](args)))), {}),
+  "load": (args, env, level_store) => interpret(parse(tokenize(sanitize(builtins["file"](args)))), {}, level_store),
 
-  // "em": (args, env, level_store) => console.log("NO MORE META LEVELS"),
+  // "em": async (args, env, level_store) => {
+  //   // console.log(store);
+  //   console.log(level_store);
+  //   // let ref_old_store = level_store;
+  //   let old_store = {...level_store};
+  //   level_store = {};
+  //   let created_store = (await builtins["load"](["tower/lisp.lisp"], {}, level_store))[7];
+  //   await builtins["eval"](["(set 'tower-level " + (old_store["tower-level"] + 1) + ")"], {}, level_store);
+  //   // return NIL;
+  //   level_store.store = {...created_store, ...old_store};
+  //   console.log(level_store);
+  //   // console.log(old_store);
+  //   return await builtins["eval"]([`(eval ${ args[0] })`], {}, level_store);
+  // },
 };
 
 // Read write stream
@@ -305,7 +320,7 @@ function readNext(prompt) {
 async function repl(prompt) {
   const line = await readNext(prompt);
   if (line)
-    console.log((await interpret(parse(tokenize(line)), {}))[0]);
+    console.log((await interpret(parse(tokenize(line)), {}, store))[0]);
   repl(prompt);
 }
 
@@ -318,5 +333,5 @@ module.exports = {
   parse,
   interpret,
   repl,
-  run: src => interpret(parse(tokenize(sanitize(src))), {})
+  run: src => interpret(parse(tokenize(sanitize(src))), {}, store)
 };

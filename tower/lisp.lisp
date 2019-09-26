@@ -48,38 +48,58 @@
 ;; Transform hook, making it simpler to change the interpreter while running
 (defun transform (ast) ast)
 
+
+(defun load-new-level ()
+  ;; (let (old-store-pair (get-dict 'store store))
+  (let (old-store-pair (list 'store (copy store)))
+    ;; NB! Denne setter store.store fra dette perspektivet
+    (let (new-store (nth 6 (run-program (file "tower/lisp.lisp"))))
+      (progn
+        ;; (car (run-program (concat "(tower-repl \"exlisp-" new-tower-level "> \")")))
+        (run-program (concat "(set 'tower-level " (* tower-level 10) ")"))
+        ;; (put-dict-destructive (list 'tower-level (* tower-level 10)) new-store)
+        ;; (set 'tower-level (+ tower-level 1))
+        (put-dict-destructive old-store-pair store)
+        (print store)
+        )
+      )
+    )
+  )
+
 ;; old-cont
 (set 'abort-repl false)
 
 (set 'store (dict
              (list
-              ;; denne hjelper heller ikke for problemet under
-              ;; (list 'interpret-exp (lambda (args env level-store) (progn (print "int_exp") (interpret-exp args env level-store))))
+              ;; TODO: Tror dette er nøkkelen til å koble sammen stores på riktig måte! 
+              (list 'interpret-exp (lambda (args env level-store) (progn (print tower-level) (interpret-exp args env level-store))))
               (list 'em-cont (lambda ()
                                (progn
-                                 (if (eq? em nil)
-                                     ;; (progn
+                                 (if (eq? (em 'em) nil)
+                                     (progn
                                        "No more meta levels above"
-                                       ;; (let (old-store-pair (get-dict 'store store))
-                                       ;;   (progn
-                                       ;;     (let (new-store (nth 7 (run-program (file "tower/lisp.lisp"))))
-                                       ;;       ;; Denne gjør ingengting: men hjelper ikke fikse det pga det under..
-                                       ;;       (put-dict-destructive old-store-pair new-store)
-                                       ;;       )
-                                       ;;     ;; Virker ikke på grunn av implisitt linking av interpreterene gjennom rekursjon!
-                                       ;;     (let (new-tower-level (+ tower-level 1))
-                                       ;;       (progn
-                                       ;;         ;; (set 'tower-level (+ tower-level 1))
-                                       ;;         (run-program (concat "(set 'tower-level " new-tower-level ")"))
-                                       ;;         (car (run-program (concat "(tower-repl \"exlisp-" new-tower-level "> \")")))
-                                       ;;         )
-                                       ;;     )
-                                       ;;     )
-                                       ;;   )
-                                       ;; )
+                                       (em '(load-new-level))
+                                 ;;       ;; (let (old-store-pair (list 'store store))
+                                 ;;       ;;   (progn
+                                 ;;       ;;     (let (new-store (nth 7 (run-program (file "tower/lisp.lisp"))))
+                                 ;;       ;;       ;; Denne gjør ingengting: men hjelper ikke fikse det pga det under..
+                                 ;;       ;;       (put-dict-destructive old-store-pair new-store)
+                                 ;;       ;;       )
+                                 ;;       ;;     ;; Virker ikke på grunn av implisitt linking av interpreterene gjennom rekursjon!
+                                 ;;       ;;     (let (new-tower-level (+ tower-level 1))
+                                 ;;       ;;       (progn
+                                 ;;       ;;         (set 'tower-level (+ tower-level 2))
+                                 ;;       ;;         (run-program (concat "(set 'tower-level " new-tower-level ")"))
+                                 ;;       ;;         (car (run-program (concat "(tower-repl \"exlisp-" new-tower-level "> \")")))
+                                 ;;       ;;         )
+                                 ;;       ;;     )
+                                 ;;       ;;     )
+                                 ;;       ;;   )
+                                       )
                                    (em '(tower-repl (concat "lisp-" tower-level "> ")))
                                    )
                                  )))
+              ;; (list 'meta-load-new-level (lambda (args) (load-new-level)))
               (list 'em (lambda (args) (eval args)))
               (list 'old-cont (lambda (args) (progn (set 'cont-value args) (set 'abort-repl true) "Moving down"))))))
 
@@ -93,5 +113,3 @@
           (print (car (run-program (concat "(init-tower " (- level 1) ")")))))
       (tower-repl (concat "lisp-" level "> ")))
     nil))
-
-store
