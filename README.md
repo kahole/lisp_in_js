@@ -13,10 +13,11 @@ The folder `tower` contains a port of the hlisp-interpreter written in hlisp and
   - [Roadmap](#roadmap)
 - [Reflective Tower](#reflective-tower)
   - [Lightweight vs Full port](#lightweight-vs-full-port)
-  - [Interpreter tower](#interpreter-tower)
-  - [Transform](#transform)
   - [Tower functions](#tower-functions)
-  - [References](#references)
+  - [Tower usage](#tower-usage)
+  - [Transform](#transform)
+  - [Roadmap](#roadmap)
+- [References](#references)
 
 # Lisp.js
 
