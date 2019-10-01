@@ -12,7 +12,7 @@ The folder `tower` contains a port of the hlisp-interpreter written in hlisp and
   - [Built-ins](#builtins)
   - [Roadmap](#roadmap)
 - [Reflective Tower](#reflective-tower)
-  - [lisp.lisp vs lisp_full_port.lisp](#lisplisp-vs-lisp_full_portlisp)
+  - [Lightweight vs Full port](#lightweight-vs-full-port)
   - [Interpreter tower](#interpreter-tower)
   - [Transform](#transform)
   - [Tower functions](#tower-functions)
@@ -80,7 +80,6 @@ concurrent hello
 hello
 concurrent hello
 10
-
 ```
 
 ## Builtins
@@ -100,23 +99,20 @@ concurrent hello
 
 Because it can also interpret itself, mutliple instances of the interpreter can be nested, making a tower of interpreters.
 It is possible to manipulate interpreters while they are running. Going down a level in the tower the language will have changed.
-And any part of the interpreters execution can be inspected from any level making the tower "Reflective".
+Any part of the interpreters execution can be inspected from any level making the tower "Reflective".
 
 <!-- Interesting case with `map`. Not a builtin in any store, Lives in emulated store of level-1 interpreter, meaning it's a variable in level. -->
 
-## lisp.lisp vs lisp_full_port.lisp
+## Lightweight vs Full port
 
-self-interpreter
+The two ports are self-interpreters and are [meta-circular](https://en.wikipedia.org/wiki/Meta-circular_evaluator).
 
-[meta-circular interpreter](https://en.wikipedia.org/wiki/Meta-circular_evaluator)
+`full_port_lisp.lisp` contains a complete port of the js-lisp interpreter, this interpreter is slow when nesting 4-5 of instances.
 
-Lightweight interpreter:
-Universal store "builtins" contains default definitions defined in the host interpreter.
-Interpreter specific stores: "level store"
-
-Each interpreter is still interpreted by the level above, but if an interpreter hasn't explicitly defined a function....
-
-like in footnote paper 1
+`lisp.lisp` is a lightweight implementation of the interpreter relying on a universal store of "builtins" defined in the host interpreter for parsing and interpreting.
+It provides the host-intepret function with its interpreter specific store, called a "level store".
+Each interpreter is still interpreted by the level above, but if an interpreter doesn't contain an explicit definition of a function the universal store is used to run the function.
+This is similar to the approach used by S.Barnes[2](#references).
 
 ## Tower functions
 
@@ -206,7 +202,11 @@ lisp-0> (+ 5 4)
 lisp-0>
 ```
 
+## Roadmap
+
+- Infinite tower
+
 ## References
 
-- [An Interpreted Scheme Dialect with a Reflective Tower](http://cs242.stanford.edu/f17/assets/projects/2017/stbarnes.pdf)
-- [Collapsing Towers of Interpreters](http://lampwww.epfl.ch/~amin/pub/collapsing-towers.pdf)
+1. [An Interpreted Scheme Dialect with a Reflective Tower](http://cs242.stanford.edu/f17/assets/projects/2017/stbarnes.pdf)
+2. [Collapsing Towers of Interpreters](http://lampwww.epfl.ch/~amin/pub/collapsing-towers.pdf)
