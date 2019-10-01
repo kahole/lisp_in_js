@@ -113,7 +113,7 @@ The two ports are self-interpreters and are [meta-circular](https://en.wikipedia
 `lisp.lisp` is a lightweight implementation of the interpreter relying on a universal store of "builtins" defined in the host interpreter for parsing and interpreting.
 It provides the host-intepret function with its interpreter specific store, called a "level store".
 Each interpreter is still interpreted by the level above, but if an interpreter doesn't contain an explicit definition of a function the universal store is used to run the function.
-This is similar to the approach used by S.Barnes[2](#references).
+This is similar to the approach used by S.Barnes [[2]](#references).
 
 ## Tower functions
 
