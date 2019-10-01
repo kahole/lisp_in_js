@@ -4,15 +4,20 @@
 
 Because it can also interpret itself, mutliple instances of the interpreter can be nested, making a tower of interpreters.
 It is possible to manipulate interpreters while they are running. Going down a level in the tower the language will have changed.
-And any part of the interpreters execution can be inspected from any level making the tower "Reflective".
+Any part of the interpreters execution can be inspected from any level making the tower "Reflective".
 
 <!-- Interesting case with `map`. Not a builtin in any store, Lives in emulated store of level-1 interpreter, meaning it's a variable in level. -->
 
-## lisp.lisp vs lisp_full_port.lisp
+## Lightweight vs Full port
 
-self-interpreter
+The two ports are self-interpreters and are [meta-circular](https://en.wikipedia.org/wiki/Meta-circular_evaluator).
 
-[meta-circular interpreter](https://en.wikipedia.org/wiki/Meta-circular_evaluator)
+`full_port_lisp.lisp` contains a complete port of the js-lisp interpreter, this interpreter is slow when nesting 4-5 of instances.
+
+`lisp.lisp` is a lightweight implementation of the interpreter relying on a universal store of "builtins" defined in the host interpreter for parsing and interpreting.
+It provides the host-intepret function with its interpreter specific store, called a "level store".
+Each interpreter is still interpreted by the level above, but if an interpreter doesn't contain an explicit definition of a function the universal store is used to run the function.
+This is similar to the approach used by S.Barnes [[2]](#references).
 
 ## Tower functions
 
@@ -26,11 +31,14 @@ Functions for using the tower:
 
 ## Tower usage
 
-With `tower.js` the interpreter written in lisp can be nested (interpret itself) to a configurable amount of levels.
+The interpreter written in lisp can be nested (interpret itself) to a configurable amount of levels.
 
 Example usage:
 ```lisp
-node tower 5
+node lisp
+h>
+h> (load "tower/lisp.lisp")
+h> (init-tower 5)
 lisp-0> (em-cont)
 lisp-1>
 lisp-1> (old-cont nil)
@@ -99,7 +107,11 @@ lisp-0> (+ 5 4)
 lisp-0>
 ```
 
+## Roadmap
+
+- Infinite tower
+
 ## References
 
-- [An Interpreted Scheme Dialect with a Reflective Tower](http://cs242.stanford.edu/f17/assets/projects/2017/stbarnes.pdf)
-- [Collapsing Towers of Interpreters](http://lampwww.epfl.ch/~amin/pub/collapsing-towers.pdf)
+1. [An Interpreted Scheme Dialect with a Reflective Tower](http://cs242.stanford.edu/f17/assets/projects/2017/stbarnes.pdf)
+2. [Collapsing Towers of Interpreters](http://lampwww.epfl.ch/~amin/pub/collapsing-towers.pdf)
