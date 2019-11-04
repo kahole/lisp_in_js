@@ -267,6 +267,7 @@ const builtins = {
   "parse": args => parse(args[0]),
   "interpret-exp": args => interpret_exp(args[0], args[1], args[2]),
 
+  // TODO: should use level store, interpret needs to be re-engineered a bit
   "load": args => interpret(parse(tokenize(sanitize(builtins["file"](args)))), {}),
 };
 
@@ -290,11 +291,7 @@ function readNext(prompt) {
     rl.removeAllListeners("line");
     rl.prompt();
     rl.on("line", line => {
-      if (line.length === 0) {
-        resolve("");
-      } else {
-        resolve(line);
-      }
+      resolve(line);
     });
   });
 }
