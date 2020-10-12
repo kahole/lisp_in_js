@@ -1,4 +1,4 @@
-const { match, op } = require("egna");
+const { match } = require("egna");
 const fetch = require('node-fetch');
 const readline = require('readline');
 const fs = require('fs');

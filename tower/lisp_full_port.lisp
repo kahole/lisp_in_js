@@ -245,7 +245,12 @@
 
 (set 'store (merge-dict (dict
                          (list
-                          (list 'em-cont (lambda () (em '(tower-repl (concat "lisp-" tower-level "> ")))))
+                          (list 'em-cont (lambda ()
+                                           (progn
+                                             (if (eq? em nil)
+                                                 "No more meta levels above"
+                                               (em '(tower-repl (concat "lisp-" tower-level "> "))))))
+                                )
                           (list 'em (lambda (args) (eval (car args))))
                           (list 'old-cont (lambda (args) (progn (set 'cont-value (car args)) (set 'abort-repl true) "Moving down")))
                           )) store))

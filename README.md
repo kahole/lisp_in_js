@@ -102,7 +102,8 @@ Because it can also interpret itself, mutliple instances of the interpreter can 
 It is possible to manipulate interpreters while they are running. Going down a level in the tower the language will have changed.
 Any part of the interpreters execution can be inspected from any level making the tower "Reflective".
 
-<!-- Interesting case with `map`. Not a builtin in any store, Lives in emulated store of level-1 interpreter, meaning it's a variable in level. -->
+
+Can be illustrated with the `map` function. It's not a builtin in any store, but lives in store of level-1 interpreter, meaning it's a variable in level.
 
 ## Lightweight vs Full port
 
