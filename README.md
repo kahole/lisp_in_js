@@ -96,7 +96,7 @@ concurrent hello
 
 # Reflective Tower
 
-`tower/lisp.lisp` is port of the interpreter written in the interpreted hlisp itself.
+`tower/lisp.lisp` is a port of the interpreter, written in the interpreted hlisp itself.
 
 Because it can also interpret itself, mutliple instances of the interpreter can be nested, making a tower of interpreters.
 It is possible to manipulate interpreters while they are running. Going down a level in the tower the language will have changed.
