@@ -161,12 +161,12 @@ async function interpret_exp(ast, env, level_store) {
   }
 }
 
-async function interpret(ast, env) {
+async function interpret(ast, env, overrideStore) {
 
   const results = [];
   for (let i = 0; i < ast.length; i++) {
     let exp = ast[i];
-    results.push(await interpret_exp(exp, env, store));
+    results.push(await interpret_exp(exp, env, overrideStore ?? store));
   }
 
   return results;
@@ -263,6 +263,7 @@ const builtins = {
   "fork": (args, env, level_store) => interpret_exp(args[0], env, level_store),
   "join": (args, env) => args[0],
 
+  // For interpreter tower, built in interpreter features
   "tokenize": args => tokenize(args[0]),
   "parse": args => parse(args[0]),
   "interpret-exp": args => interpret_exp(args[0], args[1], args[2]),
@@ -312,5 +313,6 @@ module.exports = {
   parse,
   interpret,
   repl,
+  readNext,
   run: src => interpret(parse(tokenize(sanitize(src))), {})
 };
