@@ -12,10 +12,11 @@ The folder `tower` contains a port of the hlisp-interpreter written in hlisp and
   - [Built-ins](#builtins)
   - [Roadmap](#roadmap)
 - [Reflective Tower](#reflective-tower)
-  - [Lightweight vs Full port](#lightweight-vs-full-port)
+  - [Recursive Interpreter Tower](#recursive-interpreter-tower)
+  - [Infinite Tower](#infinite-tower)
   - [Tower functions](#tower-functions)
   - [Tower usage](#tower-usage)
-  - [Transform](#transform)
+  - [Transform hook](#transform-hook)
   - [Roadmap](#roadmap)
 - [References](#references)
 
