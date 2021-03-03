@@ -6,8 +6,11 @@ Because this interpreter can also interpret itself, mutliple instances of the in
 It is possible to manipulate interpreters while they are running. Doing so, then going down a level in the tower, the language will have changed.
 Any part of the interpreters' execution can be inspected from any level, making the tower "Reflective".
 
+This is illustrated by the `map` function. It's not a builtin in any store, but part of the ported interpreter source code.
+It lives in the store-variable of the level `l + 1` interpreter, meaning it's a variable in level `l`.
+
 The numbering of the levels start at 0. Level 0 is the most deeply nested interpreter and thus actually the top of the tower.
-Level 0 is interpreted by level 1, and so on.
+The level 0 interpreter is interpreted by the level 1 interpreter, and so on.
 It's enumerated with this direction because one of the tower implementations has infinite levels.
 ```
 level 0
@@ -22,9 +25,6 @@ infinity
 So, when moving, for example, from level 0 to level 1, instead of saying we're moving to the interpreter running below, we say we're going up a "meta" level.
 
 From here on, in this paper, levels and movements between them will be reffered to in this nomenclature.
-
-
-This is illustrated by the `map` function. It's not a builtin in any store, but lives in the store of the level `l + 1` interpreter, meaning it's a variable in level `l`.
 
 ## Recursive Interpreter Tower
 
