@@ -1,44 +1,87 @@
 # Reflective Tower
 
-`tower/lisp.lisp` is port of the interpreter written in the interpreted hlisp itself.
+`tower/full_port_lisp.lisp` is a port of the interpreter, written in the interpreted hlisp itself.
 
-Because it can also interpret itself, mutliple instances of the interpreter can be nested, making a tower of interpreters.
-It is possible to manipulate interpreters while they are running. Going down a level in the tower the language will have changed.
-Any part of the interpreters execution can be inspected from any level making the tower "Reflective".
+Because this interpreter can also interpret itself, mutliple instances of the interpreter can be nested, making a tower of interpreters.
+It is possible to manipulate interpreters while they are running. Doing so, then going down a level in the tower, the language will have changed.
+Any part of the interpreters' execution can be inspected from any level, making the tower "Reflective".
 
-<!-- Interesting case with `map`. Not a builtin in any store, Lives in emulated store of level-1 interpreter, meaning it's a variable in level. -->
+The numbering of the levels start at 0. Level 0 is the most deeply nested interpreter and thus actually the top of the tower.
+Level 0 is interpreted by level 1, and so on.
+It's enumerated with this direction because one of the tower implementations has infinite levels.
+```
+level 0
+level 1
+level 2
+...
+level 99
+...
+infinity
+```
 
-## Lightweight vs Full port
+So, when moving, for example, from level 0 to level 1, instead of saying we're moving to the interpreter running below, we say we're going up a "meta" level.
 
-The two ports are self-interpreters and are [meta-circular](https://en.wikipedia.org/wiki/Meta-circular_evaluator).
+From here on, in this paper, levels and movements between them will be reffered to in this nomenclature.
 
-`full_port_lisp.lisp` contains a complete port of the js-lisp interpreter, this interpreter is slow when nesting 4-5 of instances.
+
+This is illustrated by the `map` function. It's not a builtin in any store, but lives in the store of the level `l + 1` interpreter, meaning it's a variable in level `l`.
+
+## Recursive Interpreter Tower
+
+The tower folder contains two hlisp interpreter ports capable of interpreting themselves recursively, building interpreter towers.
+
+They are self-interpreters and are [meta-circular](https://en.wikipedia.org/wiki/Meta-circular_evaluator).
+
+`full_port_lisp.lisp` contains a complete port of the js-lisp interpreter, this interpreter is slow when nesting 4-5 instances.
 
 `lisp.lisp` is a lightweight implementation of the interpreter relying on a universal store of "builtins" defined in the host interpreter for parsing and interpreting.
-It provides the host-intepret function with its interpreter specific store, called a "level store".
+It provides the universal interpret function with the AST and a interpreter specific store, called a "level store".
 Each interpreter is still interpreted by the level above, but if an interpreter doesn't contain an explicit definition of a function the universal store is used to run the function.
 This is similar to the approach used by S.Barnes [[2]](#references).
 
-## Tower functions
+### Starting the recursive tower
 
-Functions for using the tower:
-
-| &nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;&nbsp;&nbsp;&nbsp; | Explanation  |
-|----------|---|
-| `em`      | `(em QUOTATION)` Execute-meta. Executes quoted code on the interpreter level above. |
-| `em-cont`      | `(em-cont)` Execute-meta-continue. Continues the repl for the interpreter level above. |
-| `old-cont`      | `(old-cont OBJECT)` Executes code on the current interpreter level, and passes the return value to the intepreter running below. And continues execution at that level. |
-
-## Tower usage
-
-The interpreter written in lisp can be nested (interpret itself) to a configurable amount of levels.
-
-Example usage:
+5 levels of nested interpreters:
 ```lisp
 node lisp
 h>
 h> (load "tower/lisp.lisp")
 h> (init-tower 5)
+lisp-0> 
+```
+
+## Infinite Tower
+
+`infinite_lisp.js`
+
+The recursive nature of `lisp.lisp`, which thightly nests and implicitely links the levels, made it hard to have an infinite tower. 
+Therefore, the infinite-tower implementation is made with a tower controller that manages execution from outside the tower.
+The controller lives in `infinite_lisp.js`, and injects appropriate stores and keeps track of which interpreter should run what code.
+
+This tower uses the same principle as `lisp.lisp`, with universal store short-circuiting the execution.
+
+### Starting the infinite tower
+
+```bash
+node infinite_lisp.js
+lisp-0> 
+```
+
+## Tower functions
+
+Functions for navigating and executing code in the tower.
+
+| &nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;&nbsp;&nbsp;&nbsp; | Explanation  |
+|----------|---|
+| `em`      | `(em QUOTATION)` Execute-meta. Executes quoted code on the interpreter level above. |
+| `em-cont`      | `(em-cont)` Execute-meta-continue. Continues the repl at the interpreter level above. |
+| `old-cont`      | `(old-cont OBJECT)` Executes code on the current interpreter level, and passes the return value to the intepreter running below. And continues execution at that level. |
+
+## Tower usage
+
+Once you have started your tower of choice, here is how to use it:
+
+```lisp
 lisp-0> (em-cont)
 lisp-1>
 lisp-1> (old-cont nil)
@@ -84,15 +127,28 @@ lisp-1> (old-cont +)
 Moving down
 6
 lisp-0>
+lisp-0> (em '(em '(set 'z 66)))
+66
+lisp-0> (+ 5 z)
+Variable not bound: z
+Moving up
+lisp-1> (old-cont z)
+Variable not bound: z
+Moving up
+lisp-2> (old-cont z)
+71
+lisp-0> 
+lisp-0> (em 'level)
+1
 ```
 
-## Transform
+## Transform hook
 
-In the `lisp.lisp` an extra function `transform` is used between the `parse` and `interpret` function calls.
-By default it's an identity function returning an unmodified AST.
-It makes it easy to change the language without messing with the parse function.
+In the tower interpreters an extra function, `transform`, is used between the `parse` and `interpret` function calls.
+By default it's the identity function returning an unmodified AST.
+Changing this function allows you to easily change the language without messing with the parse function.
 
-Changing interpreter and language while running by using the transform hook:
+Using the transform hook to change the language of a running interpreter:
 ```lisp
 lisp-0> (em-cont)
 lisp-1> (defun make-negative (ast) (if (eq? (length ast) 0) nil (cons (if (eq? (car ast) "+") "-" (car ast)) (make-negative (cdr ast)))))
@@ -106,10 +162,6 @@ lisp-0> (+ 5 4)
 1
 lisp-0>
 ```
-
-## Roadmap
-
-- Infinite tower
 
 ## References
 
