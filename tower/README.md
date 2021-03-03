@@ -100,7 +100,6 @@ Once you have started your tower of choice, here is how to use it:
 lisp-0> (em-cont)
 lisp-1>
 lisp-1> (old-cont)
-Moving down
 []
 lisp-0> (em '(set 'y 77))
 77
@@ -112,35 +111,7 @@ Moving up
 lisp-1> y
 77
 lisp-1> (old-cont y)
-Moving down
 77
-lisp-0> (em '(em '(set 'x 14)))
-14
-lisp-0> x
-Variable not bound: x
-Moving up
-lisp-1> x
-Variable not bound: x
-Moving up
-lisp-2> x
-14
-lisp-2> (old-cont x)
-Moving down
-14
-lisp-1> (old-cont x)
-Variable not bound: x
-Moving up
-lisp-2> (old-cont x)
-Moving down
-Moving down
-14
-lisp-0>
-lisp-0> (plus 2 4)
-Variable not bound: plus
-Moving up
-lisp-1> (old-cont +)
-Moving down
-6
 lisp-0>
 lisp-0> (em '(em '(set 'z 66)))
 66
@@ -152,6 +123,12 @@ Variable not bound: z
 Moving up
 lisp-2> (old-cont z)
 71
+lisp-0>
+lisp-0> (plus 2 4)
+Variable not bound: plus
+Moving up
+lisp-1> (old-cont +)
+6
 lisp-0> 
 lisp-0> (em 'level)
 1
@@ -171,7 +148,6 @@ lisp-1> (defun make-negative (ast) (if (eq? (length ast) 0) nil (cons (if (eq? (
 lisp-1> (defun transform (ast) (list (make-negative (car ast))))
 [Function]
 lisp-1> (old-cont)
-Moving down
 undefined
 lisp-0> (+ 5 4)
 1
