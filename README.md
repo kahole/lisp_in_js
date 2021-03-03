@@ -174,6 +174,21 @@ Functions for navigating and executing code in the tower.
 | `em-cont`      | `(em-cont)` Execute-meta-continue. Continues the repl at the interpreter level above. |
 | `old-cont`      | `(old-cont OBJECT)` Executes code on the current interpreter level, and passes the return value to the intepreter running below. And continues execution at that level. |
 
+
+### Unbound variable rescue
+If you at any point use an unbound variable, the tower will pause execution at the current level and jump up to the meta level.
+From the meta-level, once you `(old-cont VALUE)` the paused level will continue execution substituting the unbound variable for the old-cont-value.
+
+Small example:
+```
+lisp-0> (+ 5 y)
+Variable not bound: y
+Moving up
+lisp-1> (old-cont 6)
+11
+lisp-0> 
+```
+
 ## Tower usage
 
 Once you have started your tower of choice, here is how to use it:
@@ -181,7 +196,7 @@ Once you have started your tower of choice, here is how to use it:
 ```lisp
 lisp-0> (em-cont)
 lisp-1>
-lisp-1> (old-cont nil)
+lisp-1> (old-cont)
 Moving down
 []
 lisp-0> (em '(set 'y 77))
